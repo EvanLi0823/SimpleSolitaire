@@ -1,0 +1,151 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff0f66114506390469b49c54f8d81249, type: 3}
+  m_Name: TripeaksOrientationDataContainer
+  m_EditorClassIdentifier: 
+  _orientations:
+  - ScrOrientation: 0
+    Hand: 0
+    AspectMode: 1
+    Elements:
+    - Key: 2
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.38, y: 0.35}
+        Max: {x: 0.49, y: 0.35}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 0, y: 109.37145}
+    - Key: 1
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.51, y: 0.35}
+        Max: {x: 0.62, y: 0.35}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 0, y: 109.37145}
+    - Key: 50
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.445, y: 1}
+        Max: {x: 0.555, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 0, y: 109.37145}
+  - ScrOrientation: 0
+    Hand: 1
+    AspectMode: 1
+    Elements:
+    - Key: 2
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.38, y: 0.35}
+        Max: {x: 0.49, y: 0.35}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 0, y: 109.37145}
+    - Key: 1
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.51, y: 0.35}
+        Max: {x: 0.62, y: 0.35}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 0, y: 109.37145}
+    - Key: 50
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.445, y: 1}
+        Max: {x: 0.555, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 0, y: 109.37145}
+  - ScrOrientation: 1
+    Hand: 0
+    AspectMode: 2
+    Elements:
+    - Key: 2
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.4, y: 0.2}
+        Max: {x: 0.48, y: 0.4}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 11.222087, y: 0}
+    - Key: 1
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.52, y: 0.2}
+        Max: {x: 0.6, y: 0.4}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 11.222044, y: 0}
+    - Key: 50
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.455, y: 1}
+        Max: {x: 0.545, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: -64.8, y: 0}
+  - ScrOrientation: 1
+    Hand: 1
+    AspectMode: 2
+    Elements:
+    - Key: 2
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.4, y: 0.2}
+        Max: {x: 0.48, y: 0.4}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 11.222087, y: 0}
+    - Key: 1
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.52, y: 0.2}
+        Max: {x: 0.6, y: 0.4}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: 11.222044, y: 0}
+    - Key: 50
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.455, y: 1}
+        Max: {x: 0.545, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 0.5}
+      Size:
+        Value: {x: -64.8, y: 0}

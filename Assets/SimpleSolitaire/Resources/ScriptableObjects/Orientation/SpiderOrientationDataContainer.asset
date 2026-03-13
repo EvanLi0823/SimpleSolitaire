@@ -1,0 +1,791 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff0f66114506390469b49c54f8d81249, type: 3}
+  m_Name: SpiderOrientationDataContainer
+  m_EditorClassIdentifier: 
+  _orientations:
+  - ScrOrientation: 0
+    Hand: 0
+    AspectMode: 1
+    Elements:
+    - Key: 2
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.88058, y: 1}
+        Max: {x: 0.9944, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16966}
+    - Key: 10
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.0056, y: 1}
+        Max: {x: 0.11942, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 11
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.10282, y: 1}
+        Max: {x: 0.21664001, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 12
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.20004, y: 1}
+        Max: {x: 0.31386, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 13
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.29726, y: 1}
+        Max: {x: 0.41108, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 14
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.39448, y: 1}
+        Max: {x: 0.5083, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 15
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.4917, y: 1}
+        Max: {x: 0.60552, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 16
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.58892, y: 1}
+        Max: {x: 0.70274, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 17
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.68614, y: 1}
+        Max: {x: 0.79996, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 20
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.0056, y: 1}
+        Max: {x: 0.11942, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 21
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.10282, y: 1}
+        Max: {x: 0.21664, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 22
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.20004, y: 1}
+        Max: {x: 0.31386, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 23
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.29726, y: 1}
+        Max: {x: 0.41108, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 24
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.39448, y: 1}
+        Max: {x: 0.5083, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 25
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.4917, y: 1}
+        Max: {x: 0.60552, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 26
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.58892, y: 1}
+        Max: {x: 0.70274, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 27
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.68614, y: 1}
+        Max: {x: 0.79996, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 28
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.78336, y: 1}
+        Max: {x: 0.89718, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 29
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.88058, y: 1}
+        Max: {x: 0.9944, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16966}
+  - ScrOrientation: 0
+    Hand: 1
+    AspectMode: 1
+    Elements:
+    - Key: 2
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.0056, y: 1}
+        Max: {x: 0.11942, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 10
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.88058, y: 1}
+        Max: {x: 0.9944, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16966}
+    - Key: 11
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.78336, y: 1}
+        Max: {x: 0.89718, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 12
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.68614, y: 1}
+        Max: {x: 0.79996, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 13
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.58892, y: 1}
+        Max: {x: 0.70274, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 14
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.4917, y: 1}
+        Max: {x: 0.60552, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 15
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.39448, y: 1}
+        Max: {x: 0.5083, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 16
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.29726, y: 1}
+        Max: {x: 0.41108, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 17
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.20004, y: 1}
+        Max: {x: 0.31386, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 20
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.0056, y: 1}
+        Max: {x: 0.11942, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 21
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.10282, y: 1}
+        Max: {x: 0.21664, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 22
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.20004, y: 1}
+        Max: {x: 0.31386, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 23
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.29726, y: 1}
+        Max: {x: 0.41108, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 24
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.39448, y: 1}
+        Max: {x: 0.5083, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 25
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.4917, y: 1}
+        Max: {x: 0.60552, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 26
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.58892, y: 1}
+        Max: {x: 0.70274, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16962}
+    - Key: 27
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.68614, y: 1}
+        Max: {x: 0.79996, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 28
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.78336, y: 1}
+        Max: {x: 0.89718, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16957}
+    - Key: 29
+      Position:
+        Value: {x: 0, y: -125}
+      Anchor:
+        Min: {x: 0.88058, y: 1}
+        Max: {x: 0.9944, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 0, y: 113.16966}
+  - ScrOrientation: 1
+    Hand: 0
+    AspectMode: 2
+    Elements:
+    - Key: 2
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.26}
+        Max: {x: 0.99, y: 0.45}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 10
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.81}
+        Max: {x: 0.99, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 11
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.79}
+        Max: {x: 0.99, y: 0.98}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 12
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.77}
+        Max: {x: 0.99, y: 0.96}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733274, y: 0}
+    - Key: 13
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.75}
+        Max: {x: 0.99, y: 0.94}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 14
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.73}
+        Max: {x: 0.99, y: 0.92}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 15
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.71}
+        Max: {x: 0.99, y: 0.9}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 16
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.69}
+        Max: {x: 0.99, y: 0.88}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 17
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.67}
+        Max: {x: 0.99, y: 0.86}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733274, y: 0}
+    - Key: 20
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.0056, y: 0.81}
+        Max: {x: 0.09, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733005, y: 0}
+    - Key: 21
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.0956, y: 0.81}
+        Max: {x: 0.18, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1732992, y: 0}
+    - Key: 22
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.1856, y: 0.81}
+        Max: {x: 0.27, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1732938, y: 0}
+    - Key: 23
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.2756, y: 0.81}
+        Max: {x: 0.36, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1732831, y: 0}
+    - Key: 24
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.3656, y: 0.81}
+        Max: {x: 0.45, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 25
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.4556, y: 0.81}
+        Max: {x: 0.54, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1732831, y: 0}
+    - Key: 26
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.5456, y: 0.81}
+        Max: {x: 0.63, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 27
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.6356, y: 0.81}
+        Max: {x: 0.72, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1732616, y: 0}
+    - Key: 28
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.7256, y: 0.81}
+        Max: {x: 0.81, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+    - Key: 29
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.8156, y: 0.81}
+        Max: {x: 0.9, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: 1.1733046, y: 0}
+  - ScrOrientation: 1
+    Hand: 1
+    AspectMode: 2
+    Elements:
+    - Key: 2
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.26}
+        Max: {x: 0.0844, y: 0.45}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420343, y: 0}
+    - Key: 10
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.81}
+        Max: {x: 0.0844, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420343, y: 0}
+    - Key: 11
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.79}
+        Max: {x: 0.0844, y: 0.98}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420355, y: 0}
+    - Key: 12
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.77}
+        Max: {x: 0.0844, y: 0.96}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420343, y: 0}
+    - Key: 13
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.75}
+        Max: {x: 0.0844, y: 0.94}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420343, y: 0}
+    - Key: 14
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.73}
+        Max: {x: 0.0844, y: 0.92}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420343, y: 0}
+    - Key: 15
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.71}
+        Max: {x: 0.0844, y: 0.9}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420332, y: 0}
+    - Key: 16
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.69}
+        Max: {x: 0.0844, y: 0.88}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420343, y: 0}
+    - Key: 17
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.01, y: 0.67}
+        Max: {x: 0.0844, y: 0.86}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -13.420343, y: 0}
+    - Key: 20
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.0956, y: 0.81}
+        Max: {x: 0.18, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620348, y: 0}
+    - Key: 21
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.1856, y: 0.81}
+        Max: {x: 0.27, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620354, y: 0}
+    - Key: 22
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.2756, y: 0.81}
+        Max: {x: 0.36, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620365, y: 0}
+    - Key: 23
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.3656, y: 0.81}
+        Max: {x: 0.45, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620342, y: 0}
+    - Key: 24
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.4556, y: 0.81}
+        Max: {x: 0.54, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620365, y: 0}
+    - Key: 25
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.5456, y: 0.81}
+        Max: {x: 0.63, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620342, y: 0}
+    - Key: 26
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.6356, y: 0.81}
+        Max: {x: 0.72, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620386, y: 0}
+    - Key: 27
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.7256, y: 0.81}
+        Max: {x: 0.81, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620342, y: 0}
+    - Key: 28
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.8156, y: 0.81}
+        Max: {x: 0.9, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620342, y: 0}
+    - Key: 29
+      Position:
+        Value: {x: 0, y: 0}
+      Anchor:
+        Min: {x: 0.9056, y: 0.81}
+        Max: {x: 0.99, y: 1}
+      Pivot:
+        Value: {x: 0.5, y: 1}
+      Size:
+        Value: {x: -20.620342, y: 0}
