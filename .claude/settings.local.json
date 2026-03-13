@@ -8,7 +8,9 @@
       "Bash(tree:*)",
       "mcp__UnityMCP__read_console",
       "mcp__UnityMCP__refresh_unity",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)"
     ],
     "deny": [],
     "ask": [],
