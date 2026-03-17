@@ -55,6 +55,10 @@ void Awake()
 
     // 错误！访问注入的依赖（此时未注入）
     _gameModel.StartGame();
+
+    // 错误！"自注册反模式"：被管理对象调用 Manager 的缓存写入
+    // 后果：GameObject 若以 SetActive(false) 开始，Awake 不触发 → 永远不注册
+    UILayerManager.Instance?.Register(this);
 }
 ```
 
@@ -378,6 +382,7 @@ public class GamePresenter : MonoBehaviour
 - [ ] 是否只用于Unity生命周期？
 - [ ] 是否通过[Inject]获取依赖？
 - [ ] Awake中是否只访问本对象？
+- [ ] **Awake中是否调用了外部 Manager.Register(this)？**（自注册反模式：应由 Manager 掌控注册，而非被管理对象在 Awake 中自行注册）
 - [ ] Start中是否正确订阅Model？
 - [ ] Update中是否包含业务逻辑？（应该没有）
 - [ ] OnDestroy中是否取消订阅？

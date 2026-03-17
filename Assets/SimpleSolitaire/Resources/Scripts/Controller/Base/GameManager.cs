@@ -1,4 +1,5 @@
-﻿using SimpleSolitaire.Model.Config;
+﻿using SimpleSolitaire.Controller.UI;
+using SimpleSolitaire.Model.Config;
 using SimpleSolitaire.Model.Enum;
 using System;
 using System.Collections;
@@ -47,24 +48,34 @@ namespace SimpleSolitaire.Controller
         [SerializeField]
         private HowToPlayManager _howToPlayComponent;
         [SerializeField]
-        private OrientationManager _orientationManager; 
-        
+        private OrientationManager _orientationManager;
+
+        [Header("UI 弹窗管理器")]
+        [SerializeField]
+        protected UI.GameLayerMediator _layerMediator;
+
         [Header("Layers:")]
         [SerializeField]
         protected GameObject _gameLayer;
         [SerializeField]
         protected GameObject _cardLayer;
         [SerializeField]
+        [System.Obsolete("请使用 _layerMediator.ShowWinLayer()，此字段将在阶段二迁移后移除")]
         private GameObject _winLayer;
         [SerializeField]
+        [System.Obsolete("请使用 _layerMediator.ShowSettingLayer()，此字段将在阶段二迁移后移除")]
         private GameObject _settingLayer;
         [SerializeField]
+        [System.Obsolete("请使用 _layerMediator.ShowStatisticsLayer()，此字段将在阶段二迁移后移除")]
         private GameObject _statisticLayer;
         [SerializeField]
+        [System.Obsolete("请使用 _layerMediator.ShowExitLayer()，此字段将在阶段二迁移后移除")]
         private GameObject _exitLayer;
         [SerializeField]
+        [System.Obsolete("请使用 _layerMediator.ShowContinueLayer()，此字段将在阶段二迁移后移除")]
         private GameObject _continueLayer;
         [SerializeField]
+        [System.Obsolete("请使用 _layerMediator.ShowHowToPlayLayer()，此字段将在阶段二迁移后移除")]
         private GameObject _howToPlayLayer;
 
         [Header("Labels:")]
@@ -117,8 +128,6 @@ namespace SimpleSolitaire.Controller
         private bool _autoCompleteEnable;
 
         protected float _windowAnimationTime = 0.42f;
-        
-        private bool _isShouldOpenSettings = false;
         
         private void Awake()
         {
@@ -205,9 +214,7 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void ShowHowToPlayLayer()
         {
-            _cardLayer.SetActive(true);
-            _howToPlayLayer.SetActive(true);
-            AppearWindow(_howToPlayLayer);
+            _layerMediator?.ShowHowToPlayLayer();
         }
 
         /// <summary>
@@ -215,12 +222,7 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void HideHowToPlayLayer()
         {
-            DisappearWindow(_howToPlayLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
-                _howToPlayLayer.SetActive(false);
-            }
+            _layerMediator?.HideHowToPlayLayer();
         }
 
         /// <summary>
@@ -232,9 +234,7 @@ namespace SimpleSolitaire.Controller
 
             if (UseLoadLastGameOption && _howToPlayComponent.IsHasKey() && _undoPerformComponent.IsHasGame())
             {
-                _cardLayer.SetActive(false);
-                _continueLayer.SetActive(true);
-                AppearWindow(_continueLayer);
+                _layerMediator?.ShowContinueLayer();
             }
             else
             {
@@ -302,9 +302,6 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void HasWinGame()
         {
-            _cardLayer.SetActive(false);
-            _winLayer.SetActive(true);
-
             StopGameTimer();
             _congratManagerComponent.CongratulationTextFill();
             var score = _scoreCount + Public.SCORE_NUMBER / _timeCount;
@@ -319,7 +316,7 @@ namespace SimpleSolitaire.Controller
 
             SetBestValuesToPrefs(score);
 
-            AppearWindow(_winLayer);
+            _layerMediator?.ShowWinLayer();
 
             _statisticsComponent.IncreasePlayedGamesTime(_timeCount);
             _statisticsComponent.GetAverageGameTime();
@@ -355,14 +352,7 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickWinNewGame()
         {
-            DisappearWindow(_winLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
-                _winLayer.SetActive(false);
-                _cardLayer.SetActive(!_statisticLayer.activeInHierarchy && !_winLayer.activeInHierarchy);
-            }
-
+            _layerMediator?.HideWinLayer();
             _cardLogic.Shuffle(false);
             _undoPerformComponent.ResetUndoStates();
             _statisticsComponent.IncreasePlayedGamesAmount();
@@ -408,17 +398,11 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickContinueNoBtn()
         {
-            DisappearWindow(_continueLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
-                //Uncomment if you wanna clear last game when User click No button on Continue Layer.
-                //_undoPerformComponent.DeleteLastGame();
-                _cardLogic.InitCardLogic();
-                _cardLogic.Shuffle(false);
-                _continueLayer.SetActive(false);
-                _cardLayer.SetActive(true);
-            }
+            //Uncomment if you wanna clear last game when User click No button on Continue Layer.
+            //_undoPerformComponent.DeleteLastGame();
+            _cardLogic.InitCardLogic();
+            _cardLogic.Shuffle(false);
+            _layerMediator?.HideContinueLayer();
         }
 
         /// <summary>
@@ -426,14 +410,8 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickContinueYesBtn()
         {
-            DisappearWindow(_continueLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
-                LoadGame();
-                _continueLayer.SetActive(false);
-                _cardLayer.SetActive(true);
-            }
+            LoadGame();
+            _layerMediator?.HideContinueLayer();
         }
         #endregion
 
@@ -443,23 +421,15 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickExitBtn()
         {
-            _cardLayer.SetActive(false);
-            _exitLayer.SetActive(true);
-            AppearWindow(_exitLayer);
+            _layerMediator?.ShowExitLayer();
         }
 
         /// <summary>
-        /// Close <see cref="_adsLayer"/>.
+        /// Click No on exit dialog.
         /// </summary>
         public void OnClickExitNoBtn()
         {
-            DisappearWindow(_exitLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
-                _exitLayer.SetActive(false);
-                _cardLayer.SetActive(true);
-            }
+            _layerMediator?.HideExitLayer();
         }
 
         /// <summary>
@@ -467,17 +437,12 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickExitYesBtn()
         {
-            DisappearWindow(_exitLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
 #if UNITY_EDITOR
-                _cardLogic.SaveGameState(isTempState: true);
-                EditorApplication.isPlaying = false;
+            _cardLogic.SaveGameState(isTempState: true);
+            EditorApplication.isPlaying = false;
 #else
-				Application.Quit();
+            Application.Quit();
 #endif
-            }
         }
 
         #endregion
@@ -508,14 +473,11 @@ namespace SimpleSolitaire.Controller
         private void ShowAdsLayer()
         {
             UpdateAdsInfoText(_currentAdsType);
-
-            _cardLayer.SetActive(false);
-            _adsLayer.SetActive(true);
             _adsInfoText.enabled = true;
             _adsDidNotLoadText.enabled = false;
             _adsClosedTooEarlyText.enabled = false;
             _watchButton.SetActive(true);
-            AppearWindow(_adsLayer);
+            _layerMediator?.ShowAdsLayer();
         }
 
         /// <summary>
@@ -523,13 +485,7 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickAdsCloseBtn()
         {
-            DisappearWindow(_adsLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
-                _adsLayer.SetActive(false);
-                _cardLayer.SetActive(true);
-            }
+            _layerMediator?.HideAdsLayer();
         }
 
         /// <summary>
@@ -553,30 +509,27 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnRewardActionState(RewardAdsState state, RewardAdsType type)
         {
-            DisappearWindow(_adsLayer, OnWindowDisappeared);
+            bool infoText    = false;
+            bool closedText  = state == RewardAdsState.TOO_EARLY_CLOSE;
+            bool notLoadText = state == RewardAdsState.DID_NOT_LOADED;
 
-            void OnWindowDisappeared()
+            // 先隐藏广告层，动画完成后用结果状态重新显示
+            var adsLayerBase = UI.UILayerManager.Instance?.GetTopLayer();
+            if (adsLayerBase != null)
             {
-                bool infoText = false;
-                bool closedText = false;
-                bool notLoadedText = false;
-                switch (state)
+                void OnAdsHidden()
                 {
-                    case RewardAdsState.TOO_EARLY_CLOSE:
-                        closedText = true;
-                        break;
-                    case RewardAdsState.DID_NOT_LOADED:
-                        notLoadedText = true;
-                        break;
+                    adsLayerBase.OnHideCompleted -= OnAdsHidden;
+                    _adsInfoText.enabled          = infoText;
+                    _adsDidNotLoadText.enabled     = notLoadText;
+                    _adsClosedTooEarlyText.enabled = closedText;
+                    _watchButton.SetActive(false);
+                    _layerMediator?.ShowAdsLayer();
                 }
-                _adsLayer.SetActive(true);
-                _adsInfoText.enabled = infoText;
-                _adsDidNotLoadText.enabled = notLoadedText;
-                _adsClosedTooEarlyText.enabled = closedText;
-                _watchButton.SetActive(false);
-                _cardLayer.SetActive(false);
-                AppearWindow(_adsLayer);
+                adsLayerBase.OnHideCompleted += OnAdsHidden;
             }
+
+            _layerMediator?.HideAdsLayer();
         }
 
         public void UpdateAdsInfoText(RewardAdsType type)
@@ -595,40 +548,19 @@ namespace SimpleSolitaire.Controller
 
         #region Rule Layer
         /// <summary>
-        /// Click on rule button.
+        /// Click on rule button（从设置层进入 HowToPlay，关闭后自动返回设置层）。
         /// </summary>
         public void OnClickSettingLayerRuleBtn()
         {
-            _isShouldOpenSettings = true;
-            _howToPlayComponent.SetFirstPage();
-            StartCoroutine(InvokeAction(delegate { OnClickSettingLayerCloseBtn(); Invoke(nameof(OnHowToPlayAppearing), _windowAnimationTime); }, 0f));
+            _layerMediator?.ShowHowToPlayLayer(returnToSetting: true);
         }
 
         /// <summary>
-        /// Close <see cref="_ruleLayer"/>.
+        /// Close HowToPlay layer（返回按钮）。
         /// </summary>
         public void OnClickHowToPlayBackBtn()
         {
-            DisappearWindow(_howToPlayLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
-                _howToPlayLayer.SetActive(false);
-
-                if (_isShouldOpenSettings)
-                {
-                    OnClickSettingBtn();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Show <see cref="_ruleLayer"/>.
-        /// </summary>
-        private void OnHowToPlayAppearing()
-        {
-            _howToPlayLayer.SetActive(true);
-            AppearWindow(_howToPlayLayer);
+            _layerMediator?.HideHowToPlayLayer();
         }
         #endregion
 
@@ -638,56 +570,42 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickSettingBtn()
         {
-            _cardLayer.SetActive(false);
-            _settingLayer.SetActive(true);
-            AppearWindow(_settingLayer);
+            _layerMediator?.ShowSettingLayer();
         }
 
         /// <summary>
-        /// Close <see cref="_settingLayer"/>.
+        /// Close setting layer.
         /// </summary>
         public void OnClickSettingLayerCloseBtn()
         {
-            DisappearWindow(_settingLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
-            {
-                _settingLayer.SetActive(false);
-                _cardLayer.SetActive(!_statisticLayer.activeInHierarchy && !_howToPlayLayer.activeInHierarchy);
-            }
+            _layerMediator?.HideSettingLayer();
         }
         #endregion
 
         #region Statistics Layer
         /// <summary>
-        /// Click on statistics button.
+        /// Click on statistics button（先关 Setting，Statistics 进等待队列自动弹出）。
         /// </summary>
         public void OnClickStatisticBtn()
         {
-            StartCoroutine(InvokeAction(delegate { OnClickSettingLayerCloseBtn(); Invoke(nameof(OnStatisticAppearing), _windowAnimationTime); }, 0f));
+            _layerMediator?.ShowStatisticsLayer();
         }
 
         /// <summary>
-        /// Call animation which appear statistics popup.
-        /// </summary>
-        private void OnStatisticAppearing()
-        {
-            _statisticLayer.SetActive(true);
-            AppearWindow(_statisticLayer);
-        }
-
-        /// <summary>
-        /// Close <see cref="_statisticLayer"/>.
+        /// Close statistics layer（触发虚方法链，子类可在关闭前执行额外逻辑）。
         /// </summary>
         public void OnClickStatisticLayerCloseBtn()
         {
-            DisappearWindow(_statisticLayer, OnStatisticsLayerClosed);
+            OnStatisticsLayerClosed();
         }
 
+        /// <summary>
+        /// 关闭统计层并返回设置层。子类可 override 在关闭前刷新规则开关等 UI 状态。
+        /// </summary>
         protected virtual void OnStatisticsLayerClosed()
         {
-            _statisticLayer.SetActive(false);
-            OnClickSettingBtn();
+            _layerMediator?.HideStatisticsLayer();
+            _layerMediator?.ShowSettingLayer();
         }
         #endregion
 

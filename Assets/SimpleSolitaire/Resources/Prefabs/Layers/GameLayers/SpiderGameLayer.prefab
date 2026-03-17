@@ -1371,6 +1371,21 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: SimpleSolitaire.Controller.GameManager, Assembly-CSharp
       objectReference: {fileID: 0}
+    - target: {fileID: 7999658976644426629, guid: dd66fa67af0ccef46897c511c6758f56,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7999658976644426629, guid: dd66fa67af0ccef46897c511c6758f56,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7999658976644426629, guid: dd66fa67af0ccef46897c511c6758f56,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7999658976796675436, guid: dd66fa67af0ccef46897c511c6758f56,
         type: 3}
       propertyPath: m_AnchorMax.y

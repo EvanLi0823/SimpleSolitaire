@@ -5,8 +5,19 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1768928463196926157, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
+      objectReference: {fileID: 6701418792845455580}
+    - target: {fileID: 1768928463196926157, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: OnClickExitYesBtn
+      objectReference: {fileID: 0}
     - target: {fileID: 1768928463196926158, guid: 1faf6b5030d19ca469632072b2bba01c,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -26,6 +37,36 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1768928463218422066, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1768928463218422066, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1768928463218422066, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1768928463218422067, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: OnClickExitNoBtn
+      objectReference: {fileID: 0}
+    - target: {fileID: 1768928463368673242, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_TargetGraphic
+      value: 
+      objectReference: {fileID: 6701418792924927945}
+    - target: {fileID: 1768928463368673242, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: OnClickExitNoBtn
       objectReference: {fileID: 0}
     - target: {fileID: 1768928463368673243, guid: 1faf6b5030d19ca469632072b2bba01c,
         type: 3}
@@ -162,10 +203,67 @@ PrefabInstance:
       propertyPath: m_Name
       value: ExitLayer
       objectReference: {fileID: 0}
+    - target: {fileID: 1768928464344176487, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8796722930558911388, guid: 1faf6b5030d19ca469632072b2bba01c,
         type: 3}
       propertyPath: m_Text
       value: EXIT
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1768928464344176487, guid: 1faf6b5030d19ca469632072b2bba01c,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7511797067542654880}
   m_SourcePrefab: {fileID: 100100000, guid: 1faf6b5030d19ca469632072b2bba01c, type: 3}
+--- !u!1 &6701418791677450103 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1768928464344176487, guid: 1faf6b5030d19ca469632072b2bba01c,
+    type: 3}
+  m_PrefabInstance: {fileID: 5011459591259553808}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7511797067542654880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6701418791677450103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c47022be195b4d278d1e6facb04f2f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _priority: 100
+  _animationType: 0
+  _blockerAlpha: 0.7
+--- !u!114 &6701418792845455580 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1768928463196926156, guid: 1faf6b5030d19ca469632072b2bba01c,
+    type: 3}
+  m_PrefabInstance: {fileID: 5011459591259553808}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6701418792924927945 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1768928463368673241, guid: 1faf6b5030d19ca469632072b2bba01c,
+    type: 3}
+  m_PrefabInstance: {fileID: 5011459591259553808}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace SimpleSolitaire.Editors
 {
 	[CustomEditor(typeof(GameManager), true)]
-	public class GameManagerEditor : Editor
+	public class GameManagerEditor : UnityEditor.Editor
 	{
 		public static GameManager Target;
 

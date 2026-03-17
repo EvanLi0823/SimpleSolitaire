@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using SimpleSolitaire.Controller.Additional;
+using SimpleSolitaire.Controller.UI;
 using UnityEngine;
 
 namespace SimpleSolitaire.Controller
@@ -19,7 +20,6 @@ namespace SimpleSolitaire.Controller
         [SerializeField] private HowToPlayItem _item;
         [SerializeField] private RectTransform _content;
         [SerializeField] private ScrollSnapRect _scrollSnap;
-        [SerializeField] private GameManager _gameManagerComponent;
 
         protected abstract string FirstPlayKey { get; }
 
@@ -29,19 +29,19 @@ namespace SimpleSolitaire.Controller
         }
 
         /// <summary>
-        /// Activate tutorial if player game first time.
+        /// 首次游玩时自动弹出教程弹窗。
         /// </summary>
         private IEnumerator Start()
         {
             GeneratePages();
             _scrollSnap.Initialize();
-            
+
             yield return new WaitForSeconds(0.1f);
 
             if (!IsHasKey())
             {
                 PlayerPrefs.SetInt(FirstPlayKey, 1);
-                _gameManagerComponent.ShowHowToPlayLayer();
+                UILayerManager.Instance?.Show(GameLayerMediator.HowToPlayLayer);
             }
         }
 
