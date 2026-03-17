@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using SimpleSolitaire.Controller.Additional;
+using System.Collections;
 using SimpleSolitaire.Controller.UI;
 using UnityEngine;
 
@@ -18,30 +16,19 @@ namespace SimpleSolitaire.Controller
     {
         [SerializeField] private HowToPlayDataContainer _container;
         [SerializeField] private HowToPlayItem _item;
-        [SerializeField] private RectTransform _content;
-        [SerializeField] private ScrollSnapRect _scrollSnap;
 
         protected abstract string FirstPlayKey { get; }
 
-        public void SetFirstPage()
-        {
-            _scrollSnap.SetPage(0);
-        }
-
         /// <summary>
-        /// 首次游玩时自动弹出教程弹窗。
+        /// 将教程页生成到指定容器中（由 HowToPlayLayerUI 在弹窗打开时调用）。
         /// </summary>
-        private IEnumerator Start()
+        public void GeneratePagesInto(RectTransform content)
         {
-            GeneratePages();
-            _scrollSnap.Initialize();
-
-            yield return new WaitForSeconds(0.1f);
-
-            if (!IsHasKey())
+            for (int i = 0; i < _container.Pages.Count; i++)
             {
-                PlayerPrefs.SetInt(FirstPlayKey, 1);
-                UILayerManager.Instance?.Show(GameLayerMediator.HowToPlayLayer);
+                HowToPlayData page = _container.Pages[i];
+                HowToPlayItem item = Instantiate(_item, content);
+                item.Initialize(page);
             }
         }
 
@@ -53,13 +40,17 @@ namespace SimpleSolitaire.Controller
             return PlayerPrefs.HasKey(FirstPlayKey);
         }
 
-        private void GeneratePages()
+        /// <summary>
+        /// 首次游玩时自动弹出教程弹窗。
+        /// </summary>
+        private IEnumerator Start()
         {
-            for (int i = 0; i < _container.Pages.Count; i++)
+            yield return new WaitForSeconds(0.1f);
+
+            if (!IsHasKey())
             {
-                HowToPlayData page = _container.Pages[i];
-                HowToPlayItem item = Instantiate(_item, _content);
-                item.Initialize(page);
+                PlayerPrefs.SetInt(FirstPlayKey, 1);
+                UILayerManager.Instance?.Show(GameLayerMediator.HowToPlayLayer);
             }
         }
     }

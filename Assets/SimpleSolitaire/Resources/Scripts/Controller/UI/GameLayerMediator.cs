@@ -111,6 +111,16 @@ namespace SimpleSolitaire.Controller.UI
 
         public void HideHowToPlayLayer() => _layerManager.Hide(HowToPlayLayer);
 
+        // ── Setting 刷新（供 GameManager 开关按钮回调后触发）────────────────
+        /// <summary>
+        /// 通知 SettingLayerUI 刷新所有开关图片状态。
+        /// 仅在 SettingLayer 处于缓存中时有效（弹窗未实例化则无操作）。
+        /// </summary>
+        public void RefreshSettingLayer()
+        {
+            _layerManager.GetLayer<SettingLayerUI>(SettingLayer)?.RefreshSwitchStates();
+        }
+
         // ── CardLayer 手动控制（特殊情况）────────────────────────────────────
         public void ShowCardLayer() => _layerManager.SetMainLayerVisible(true);
         public void HideCardLayer() => _layerManager.SetMainLayerVisible(false);

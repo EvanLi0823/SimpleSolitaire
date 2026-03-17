@@ -2,19 +2,8 @@
 {
     public class KlondikeGameManager : GameManager
     {
-        private KlondikeCardLogic KlondikeCardLogic => _cardLogic as KlondikeCardLogic;
-        private KlondikeStatisticsController KlondikeStatisticsController => _statisticsComponent as KlondikeStatisticsController;
-
-        protected override void InitCardLogic()
-        {
-            KlondikeCardLogic.InitRuleToggles();
-        }
-
-        protected override void OnStatisticsLayerClosed()
-        {
-            KlondikeStatisticsController.InitRuleToggle(KlondikeCardLogic.CurrentRule);
-
-            base.OnStatisticsLayerClosed();
-        }
+        // KlondikeGameLayerUI 已在弹窗打开时自行同步 Toggle 与 TempRule，
+        // GameManager 层无需额外处理游戏规则的 UI 初始化
+        protected override void InitCardLogic() { }
     }
 }

@@ -38,8 +38,6 @@ namespace SimpleSolitaire.Controller
         [SerializeField]
         private AdsManager _adsManagerComponent;
         [SerializeField]
-        private CongratulationManager _congratManagerComponent;
-        [SerializeField]
         private UndoPerformer _undoPerformComponent;
         [SerializeField]
         private AutoCompleteManager _autoCompleteComponent;
@@ -54,30 +52,6 @@ namespace SimpleSolitaire.Controller
         [SerializeField]
         protected UI.GameLayerMediator _layerMediator;
 
-        [Header("Layers:")]
-        [SerializeField]
-        protected GameObject _gameLayer;
-        [SerializeField]
-        protected GameObject _cardLayer;
-        [SerializeField]
-        [System.Obsolete("请使用 _layerMediator.ShowWinLayer()，此字段将在阶段二迁移后移除")]
-        private GameObject _winLayer;
-        [SerializeField]
-        [System.Obsolete("请使用 _layerMediator.ShowSettingLayer()，此字段将在阶段二迁移后移除")]
-        private GameObject _settingLayer;
-        [SerializeField]
-        [System.Obsolete("请使用 _layerMediator.ShowStatisticsLayer()，此字段将在阶段二迁移后移除")]
-        private GameObject _statisticLayer;
-        [SerializeField]
-        [System.Obsolete("请使用 _layerMediator.ShowExitLayer()，此字段将在阶段二迁移后移除")]
-        private GameObject _exitLayer;
-        [SerializeField]
-        [System.Obsolete("请使用 _layerMediator.ShowContinueLayer()，此字段将在阶段二迁移后移除")]
-        private GameObject _continueLayer;
-        [SerializeField]
-        [System.Obsolete("请使用 _layerMediator.ShowHowToPlayLayer()，此字段将在阶段二迁移后移除")]
-        private GameObject _howToPlayLayer;
-
         [Header("Labels:")]
         [SerializeField]
         private Text _timeLabel;
@@ -85,24 +59,6 @@ namespace SimpleSolitaire.Controller
         private Text _scoreLabel;
         [SerializeField]
         private Text _stepsLabel;
-        [SerializeField]
-        private Text _timeWinLabel;
-        [SerializeField]
-        private Text _scoreWinLabel;
-        [SerializeField]
-        private Text _stepsWinLabel;
-
-        [Header("Switchers:")]
-        [SerializeField]
-        private SwitchSpriteComponent _soundSwitcher;
-        [SerializeField]
-        private SwitchSpriteComponent _autoCompleteSwitcher;
-        [SerializeField]
-        private SwitchSpriteComponent _orientationSwitcher;
-        [SerializeField]
-        private SwitchSpriteComponent _highlightDraggableSwitcher;
-        [SerializeField]
-        private TextSwitchSpriteComponent _screenOrientationSwitcher;
         
         [Header("Settings:")]
         public bool UseLoadLastGameOption;
@@ -110,6 +66,17 @@ namespace SimpleSolitaire.Controller
         public int TimeCount => _timeCount;
         public int StepCount => _stepCount;
         public int ScoreCount => _scoreCount;
+
+        /// <summary>SettingLayerUI 读取当前音效开关状态。</summary>
+        public bool SoundEnabled           => _soundEnable;
+        /// <summary>SettingLayerUI 读取当前自动完成开关状态。</summary>
+        public bool AutoCompleteEnabled    => _autoCompleteEnable;
+        /// <summary>SettingLayerUI 读取当前高亮可拖动开关状态。</summary>
+        public bool HighlightDraggable     => _cardLogic.HighlightDraggable;
+        /// <summary>SettingLayerUI 读取当前左右手方向开关状态（右手为 true）。</summary>
+        public bool IsRightHand            => _orientationManager.HandOrientation != HandOrientation.LEFT;
+        /// <summary>SettingLayerUI 读取当前屏幕方向类型。</summary>
+        public OrientationType OrientationType => _orientationManager.OrientationType;
 
         private readonly string _appearTrigger = "Appear";
         private readonly string _disappearTrigger = "Disappear";
@@ -154,7 +121,6 @@ namespace SimpleSolitaire.Controller
         private void Start()
         {
             InitGameState();
-            InitOrientationStateSwitch();
         }
 
         /// <summary>
@@ -235,6 +201,14 @@ namespace SimpleSolitaire.Controller
             if (UseLoadLastGameOption && _howToPlayComponent.IsHasKey() && _undoPerformComponent.IsHasGame())
             {
                 _layerMediator?.ShowContinueLayer();
+
+                // ShowContinueLayer() 已将弹窗注册到 UILayerManager 缓存，此处可安全获取并订阅事件
+                var continueLayer = UILayerManager.Instance?.GetLayer<ContinueLayerUI>(GameLayerMediator.ContinueGameLayer);
+                if (continueLayer != null)
+                {
+                    continueLayer.OnContinueYes += OnContinueLayerYes;
+                    continueLayer.OnContinueNo  += OnContinueLayerNo;
+                }
             }
             else
             {
@@ -242,6 +216,32 @@ namespace SimpleSolitaire.Controller
                 _cardLogic.Shuffle(false);
                 InitMenuView(false);
             }
+        }
+
+        /// <summary>玩家在 ContinueLayer 点击"继续上局"后的处理（由 ContinueLayerUI.OnContinueYes 事件驱动）。</summary>
+        private void OnContinueLayerYes()
+        {
+            var continueLayer = UILayerManager.Instance?.GetLayer<ContinueLayerUI>(GameLayerMediator.ContinueGameLayer);
+            if (continueLayer != null)
+            {
+                continueLayer.OnContinueYes -= OnContinueLayerYes;
+                continueLayer.OnContinueNo  -= OnContinueLayerNo;
+            }
+            LoadGame();
+        }
+
+        /// <summary>玩家在 ContinueLayer 点击"开始新游戏"后的处理（由 ContinueLayerUI.OnContinueNo 事件驱动）。</summary>
+        private void OnContinueLayerNo()
+        {
+            var continueLayer = UILayerManager.Instance?.GetLayer<ContinueLayerUI>(GameLayerMediator.ContinueGameLayer);
+            if (continueLayer != null)
+            {
+                continueLayer.OnContinueYes -= OnContinueLayerYes;
+                continueLayer.OnContinueNo  -= OnContinueLayerNo;
+            }
+            _cardLogic.InitCardLogic();
+            _cardLogic.Shuffle(false);
+            InitMenuView(false);
         }
 
         /// <summary>
@@ -303,11 +303,7 @@ namespace SimpleSolitaire.Controller
         public void HasWinGame()
         {
             StopGameTimer();
-            _congratManagerComponent.CongratulationTextFill();
-            var score = _scoreCount + Public.SCORE_NUMBER / _timeCount;
-            _timeWinLabel.text = "YOUR TIME: " + _timeLabel.text;
-            _scoreWinLabel.text = "YOUR SCORE: " + score;
-            _stepsWinLabel.text = "YOUR MOVES: " + _stepCount;
+            var score = _scoreCount + (_timeCount > 0 ? Public.SCORE_NUMBER / _timeCount : 0);
 
             if (_audioController != null)
             {
@@ -363,15 +359,13 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickPlayBtn()
         {
-            _cardLayer.SetActive(false);
             AppearGameLayer();
         }
 
         protected void AppearGameLayer()
         {
-            _gameLayer.SetActive(true);
             InitCardLogic();
-            AppearWindow(_gameLayer);
+            _layerMediator?.ShowGameLayer(); // UILayerManager 负责 Show 动画及 CardLayer 隐藏
         }
 
         protected abstract void InitCardLogic();
@@ -509,24 +503,17 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnRewardActionState(RewardAdsState state, RewardAdsType type)
         {
-            bool infoText    = false;
-            bool closedText  = state == RewardAdsState.TOO_EARLY_CLOSE;
-            bool notLoadText = state == RewardAdsState.DID_NOT_LOADED;
-
-            // 先隐藏广告层，动画完成后用结果状态重新显示
-            var adsLayerBase = UI.UILayerManager.Instance?.GetTopLayer();
-            if (adsLayerBase != null)
+            // 通过类型化接口获取 AdsLayerUI，避免依赖 GetTopLayer() 以及旧 Inspector 字段
+            var adsLayerUI = UILayerManager.Instance?.GetLayer<AdsLayerUI>(GameLayerMediator.AdsLayer);
+            if (adsLayerUI != null)
             {
                 void OnAdsHidden()
                 {
-                    adsLayerBase.OnHideCompleted -= OnAdsHidden;
-                    _adsInfoText.enabled          = infoText;
-                    _adsDidNotLoadText.enabled     = notLoadText;
-                    _adsClosedTooEarlyText.enabled = closedText;
-                    _watchButton.SetActive(false);
-                    _layerMediator?.ShowAdsLayer();
+                    adsLayerUI.OnHideCompleted -= OnAdsHidden;
+                    _layerMediator?.ShowAdsLayer();       // OnLayerShow() 先将状态重置为初始值
+                    adsLayerUI.ShowRewardResult(state);   // 再覆写为实际结果状态（Show() 同步返回后执行）
                 }
-                adsLayerBase.OnHideCompleted += OnAdsHidden;
+                adsLayerUI.OnHideCompleted += OnAdsHidden;
             }
 
             _layerMediator?.HideAdsLayer();
@@ -604,8 +591,19 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         protected virtual void OnStatisticsLayerClosed()
         {
+            // 先订阅 OnHideCompleted，待 Statistics 动画结束（0.42s）后再显示 Setting，
+            // 避免两个弹窗同时播放出入动画造成视觉重叠
+            var statsLayer = UILayerManager.Instance?.GetLayer<UILayerBase>(GameLayerMediator.StatisticsLayer);
+            if (statsLayer != null)
+            {
+                void OnHidden()
+                {
+                    statsLayer.OnHideCompleted -= OnHidden;
+                    _layerMediator?.ShowSettingLayer();
+                }
+                statsLayer.OnHideCompleted += OnHidden;
+            }
             _layerMediator?.HideStatisticsLayer();
-            _layerMediator?.ShowSettingLayer();
         }
         #endregion
 
@@ -615,17 +613,20 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickModalRandom()
         {
-            DisappearWindow(_gameLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
+            var gameLayerUI = UILayerManager.Instance?.GetLayer<GameLayerUI>(GameLayerMediator.GameLayer);
+            if (gameLayerUI != null)
             {
-                _cardLogic.OnNewGameStart();
-                _statisticsComponent.IncreasePlayedGamesAmount();
-                _gameLayer.SetActive(false);
-                _cardLayer.SetActive(true);
-                _cardLogic.Shuffle(false);
-                _undoPerformComponent.ResetUndoStates();
+                void OnHidden()
+                {
+                    gameLayerUI.OnHideCompleted -= OnHidden;
+                    _cardLogic.OnNewGameStart();
+                    _statisticsComponent.IncreasePlayedGamesAmount();
+                    _cardLogic.Shuffle(false);
+                    _undoPerformComponent.ResetUndoStates();
+                }
+                gameLayerUI.OnHideCompleted += OnHidden;
             }
+            _layerMediator?.HideGameLayer();
         }
 
         /// <summary>
@@ -633,32 +634,45 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickModalReplay()
         {
-            DisappearWindow(_gameLayer, OnWindowDisappeared);
-
-            void OnWindowDisappeared()
+            var gameLayerUI = UILayerManager.Instance?.GetLayer<GameLayerUI>(GameLayerMediator.GameLayer);
+            if (gameLayerUI != null)
             {
-                _cardLogic.OnNewGameStart();
-                _statisticsComponent.IncreasePlayedGamesAmount();
-                _gameLayer.SetActive(false);
-                _cardLayer.SetActive(true);
-                _cardLogic.Shuffle(true);
-                _undoPerformComponent.ResetUndoStates();
+                void OnHidden()
+                {
+                    gameLayerUI.OnHideCompleted -= OnHidden;
+                    _cardLogic.OnNewGameStart();
+                    _statisticsComponent.IncreasePlayedGamesAmount();
+                    _cardLogic.Shuffle(true);
+                    _undoPerformComponent.ResetUndoStates();
+                }
+                gameLayerUI.OnHideCompleted += OnHidden;
             }
+            _layerMediator?.HideGameLayer();
         }
 
         /// <summary>
-        /// Close <see cref="_gameLayer"/>.
+        /// 关闭游戏模式选择弹窗（GameLayer）。
         /// </summary>
         public void OnClickModalClose()
         {
-            DisappearWindow(_gameLayer, OnModalLayerDisappeared);
+            var gameLayerUI = UILayerManager.Instance?.GetLayer<GameLayerUI>(GameLayerMediator.GameLayer);
+            if (gameLayerUI != null)
+            {
+                void OnHidden()
+                {
+                    gameLayerUI.OnHideCompleted -= OnHidden;
+                    OnModalLayerDisappeared();
+                }
+                gameLayerUI.OnHideCompleted += OnHidden;
+            }
+            _layerMediator?.HideGameLayer();
         }
 
-        protected virtual void OnModalLayerDisappeared()
-        {
-            _gameLayer.SetActive(false);
-            _cardLayer.SetActive(true);
-        }
+        /// <summary>
+        /// GameLayer 消失后的回调。UILayerManager 已自动管理 CardLayer 显隐，基类无操作。
+        /// 子类可 override 处理附加面板（如 Pyramid/Tripeaks 的 _layoutsSettings）的联动逻辑。
+        /// </summary>
+        protected virtual void OnModalLayerDisappeared() { }
         #endregion
 
         /// <summary>
@@ -717,12 +731,13 @@ namespace SimpleSolitaire.Controller
         public void OnClickSoundSwitch()
         {
             _soundEnable = !_soundEnable;
-            _soundSwitcher.UpdateSwitchImg(_soundEnable);
 
             if (_audioController != null)
             {
                 _audioController.SetMute(!_soundEnable);
             }
+
+            _layerMediator?.RefreshSettingLayer();
         }
 
         /// <summary>
@@ -732,9 +747,7 @@ namespace SimpleSolitaire.Controller
         {
             _orientationManager.SetHandOrientation(_orientationManager.HandOrientation == HandOrientation.RIGHT ? HandOrientation.LEFT : HandOrientation.RIGHT);
             _orientationManager.SetOrientation();
-            
-            _orientationSwitcher.UpdateSwitchImg(_orientationManager.HandOrientation != HandOrientation.LEFT);
-
+            _layerMediator?.RefreshSettingLayer();
         }
 
         /// <summary>
@@ -744,7 +757,7 @@ namespace SimpleSolitaire.Controller
         {
             _autoCompleteEnable = !_autoCompleteEnable;
             _autoCompleteComponent.SetEnableAutoCompleteFeature(_autoCompleteEnable);
-            _autoCompleteSwitcher.UpdateSwitchImg(_autoCompleteEnable);
+            _layerMediator?.RefreshSettingLayer();
         }
 
         /// <summary>
@@ -757,7 +770,7 @@ namespace SimpleSolitaire.Controller
             {
                 _cardLogic.AllDeckArray[i].UpdateBackgroundColor();
             }
-            _highlightDraggableSwitcher.UpdateSwitchImg(_cardLogic.HighlightDraggable);
+            _layerMediator?.RefreshSettingLayer();
         }
 
         /// <summary>
@@ -765,16 +778,9 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void OnClickOrientationStateSwitch()
         {
-            var currentOrientationType = _orientationManager.OrientationType;
-            var nextOrientationType = currentOrientationType.Next();
+            var nextOrientationType = _orientationManager.OrientationType.Next();
             _orientationManager.SwitchOrientationType(nextOrientationType);
-            _screenOrientationSwitcher.UpdateSwitchImg(nextOrientationType);
-        }
-        
-        public void InitOrientationStateSwitch()
-        {
-            var currentOrientationType = _orientationManager.OrientationType;
-            _screenOrientationSwitcher.UpdateSwitchImg(currentOrientationType);
+            _layerMediator?.RefreshSettingLayer();
         }
 
         /// <summary>

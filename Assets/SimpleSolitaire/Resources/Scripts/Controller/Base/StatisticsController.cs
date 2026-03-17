@@ -1,85 +1,87 @@
 ﻿using SimpleSolitaire.Model.Enum;
 using System;
 using UnityEngine;
-using Text = UnityEngine.UI.Text;
-using Toggle = UnityEngine.UI.Toggle;
 
 namespace SimpleSolitaire.Controller
 {
+    /// <summary>
+    /// 统计数据快照，供 StatisticsLayerUI 显示用。
+    /// 所有值已格式化为字符串，View 直接赋给 Text.text。
+    /// </summary>
+    public struct StatisticsData
+    {
+        public string GameTimeAmount;
+        public string AverageGameTime;
+        public string BestGameTime;
+        public string BestGameMoves;
+        public string PlayedGamesAmount;
+        public string WonGamesAmount;
+        public string MovesAmount;
+        public string AverageScoreAmount;
+        public string GameVersion;
+    }
+
     public abstract class StatisticsController : MonoBehaviour
     {
         [SerializeField]
         protected CardLogic _cardLogicComponent;
 
+        // ── 纯数据字段，setter 只负责写值和持久化，不再操作任何 UI ────────────
+
         private long _gameTimeAmount;
-        [Header("Statistics UI")]
-        public Text GameTimeAmountText;
         public long GameTimeAmount
         {
             get { return _gameTimeAmount; }
-            set
-            {
-                _gameTimeAmount = value;
-                GameTimeAmountText.text = ConvertLongToTimeFormat(_gameTimeAmount);
-            }
+            set { _gameTimeAmount = value; }
         }
 
         private long _timeForAllPlayedGames;
         public long TimeForAllPlayedGames
         {
             get { return _timeForAllPlayedGames; }
-            set
-            {
-                _timeForAllPlayedGames = value;
-            }
+            set { _timeForAllPlayedGames = value; }
         }
 
         private long _averageGameTime;
-        public Text AverageGameTimeText;
         public long AverageGameTime
         {
             get { return _averageGameTime; }
-            set { _averageGameTime = value; AverageGameTimeText.text = ConvertLongToTimeFormat(_averageGameTime); }
+            set { _averageGameTime = value; }
         }
 
         private long _bestGameTime;
-        public Text BestGameTimeText;
         public long BestGameTime
         {
             get { return _bestGameTime; }
-            set { _bestGameTime = value; BestGameTimeText.text = ConvertLongToTimeFormat(_bestGameTime); }
+            set { _bestGameTime = value; }
         }
 
         private long _bestGameMoves;
-        public Text BestGameMovesText;
         public long BestGameMoves
         {
             get { return _bestGameMoves; }
-            set { _bestGameMoves = value; BestGameMovesText.text = _bestGameMoves.ToString(); }
+            set { _bestGameMoves = value; }
         }
 
         private int _playedGamesAmount;
-        public Text PlayedGamesAmountText;
         public int PlayedGamesAmount
         {
             get { return _playedGamesAmount; }
-            set { _playedGamesAmount = value; PlayedGamesAmountText.text = _playedGamesAmount.ToString(); }
+            set { _playedGamesAmount = value; }
         }
 
         private int _wonGamesAmount;
-        public Text WonGamesAmountText;
         public int WonGamesAmount
         {
             get { return _wonGamesAmount; }
-            set { _wonGamesAmount = value; WonGamesAmountText.text = _wonGamesAmount.ToString(); }
+            set { _wonGamesAmount = value; }
         }
 
         private long _movesAmount;
-        public Text MovesAmountText;
         public long MovesAmount
         {
             get { return _movesAmount; }
-            set { _movesAmount = value; MovesAmountText.text = _movesAmount.ToString(); }
+            set { _movesAmount = value; }
         }
 
         private long _allScoreAmount;
@@ -90,20 +92,34 @@ namespace SimpleSolitaire.Controller
         }
 
         private long _averageScoreAmount;
-        public Text AverageScoreAmountText;
         public long AverageScoreAmount
         {
             get { return _averageScoreAmount; }
-            set { _averageScoreAmount = value; AverageScoreAmountText.text = _averageScoreAmount.ToString(); }
+            set { _averageScoreAmount = value; }
         }
 
         private string _gameVersion;
-        public Text GameVersionText;
         public string GameVersion
         {
             get { return _gameVersion; }
-            set { _gameVersion = value; GameVersionText.text = $"GAME VERSION V.{_gameVersion}"; }
+            set { _gameVersion = value; }
         }
+
+        /// <summary>
+        /// 将当前所有统计值打包为显示快照，供 StatisticsLayerUI 使用。
+        /// </summary>
+        public StatisticsData BuildDisplayData() => new StatisticsData
+        {
+            GameTimeAmount    = ConvertLongToTimeFormat(_gameTimeAmount),
+            AverageGameTime   = ConvertLongToTimeFormat(_averageGameTime),
+            BestGameTime      = ConvertLongToTimeFormat(_bestGameTime),
+            BestGameMoves     = _bestGameMoves.ToString(),
+            PlayedGamesAmount = _playedGamesAmount.ToString(),
+            WonGamesAmount    = _wonGamesAmount.ToString(),
+            MovesAmount       = _movesAmount.ToString(),
+            AverageScoreAmount = _averageScoreAmount.ToString(),
+            GameVersion       = $"GAME VERSION V.{_gameVersion}",
+        };
 
         private DateTime _lastTime;
         private int _time;

@@ -1,40 +1,44 @@
-using SimpleSolitaire.Controller;
+using SimpleSolitaire.Controller.Additional;
 using SimpleSolitaire.Utility;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SimpleSolitaire.Controller.UI
 {
-    /// <summary>
-    /// 游戏教程弹窗（HowToPlayLayer）的 UILayerBase 子类。
-    /// LayerKey = "HowToPlayLayer"，Priority = Info(40)，InteractType = SemiModal。
-    ///
-    /// HowToPlayManager 通过场景搜索自动绑定，无需 Inspector 拖拽。
-    /// </summary>
     public class HowToPlayLayerUI : UILayerBase
     {
-        // ── 跨节点依赖（场景查找）────────────────────────────────────────────
-        private HowToPlayManager _howToPlayManager;
+        [SerializeField] private ScrollSnapRect _scrollSnap;
+        [SerializeField] private RectTransform  _content;
 
-        // ── 组件绑定 ──────────────────────────────────────────────────────────
+        private HowToPlayManager _howToPlayManager;
+        private bool _pagesGenerated;
 
         protected override void OnBindComponents()
         {
-            _howToPlayManager = this.FindInScene<HowToPlayManager>();
-        }
+            _scrollSnap ??= GetComponentInChildren<ScrollSnapRect>(true);
+            _content    ??= ComponentFinder.Find<RectTransform>(transform, "Content");
 
-        // ── 弹窗生命周期 ──────────────────────────────────────────────────────
+            _howToPlayManager = this.FindInScene<HowToPlayManager>();
+
+            ComponentFinder.Find<Button>(transform, "CloseButtonField")?.onClick.AddListener(OnClickBack);
+            ComponentFinder.Find<Button>(transform, "BGBlocker")?.onClick.AddListener(OnClickBack);
+        }
 
         protected override void OnLayerShow()
         {
-            _howToPlayManager?.SetFirstPage();
+            if (!_pagesGenerated)
+            {
+                _howToPlayManager?.GeneratePagesInto(_content);
+                _pagesGenerated = true;
+                _scrollSnap?.Initialize();
+            }
+
+            _scrollSnap?.SetPage(0);
         }
 
         protected override void OnLayerHide() { }
 
-        // ── 按钮回调（Inspector Button.onClick 绑定到此）─────────────────────
-
-        /// <summary>点击"返回"按钮。</summary>
-        public void OnClickBack()
+        private void OnClickBack()
         {
             UILayerManager.Instance?.Hide(GameLayerMediator.HowToPlayLayer);
         }

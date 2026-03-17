@@ -32,10 +32,10 @@ namespace SimpleSolitaire.Controller.UI
         public LayerPriority Priority => _priority;
 
         /// <summary>
-        /// 弹窗唯一 Key，自动取挂载脚本的类名，无需手动配置。
-        /// 例如 WinLayerUI 的 Key 即为 "WinLayerUI"。
+        /// 弹窗唯一 Key，默认取挂载脚本的类名，无需手动配置。
+        /// 子类可 override 以保持与父类相同的 Key（用于多态弹窗场景）。
         /// </summary>
-        public string LayerKey => GetType().Name;
+        public virtual string LayerKey => GetType().Name;
 
         /// <summary>弹窗当前是否处于激活显示状态（包含被压栈暂停的情况）。</summary>
         public bool IsVisible { get; private set; }

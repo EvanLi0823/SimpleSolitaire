@@ -33,13 +33,16 @@ namespace SimpleSolitaire.Controller.UI
         /// <summary>点击"随机新游戏"按钮。</summary>
         public void OnClickRandom()
         {
-            Hide(onComplete: () => OnRandomClicked?.Invoke());
+            // 通过 UILayerManager 关闭，保持堆栈状态一致；游戏逻辑由 GameManager 订阅 OnHideCompleted 处理
+            UILayerManager.Instance?.Hide(GameLayerMediator.GameLayer);
+            OnRandomClicked?.Invoke();
         }
 
         /// <summary>点击"重玩"按钮。</summary>
         public void OnClickReplay()
         {
-            Hide(onComplete: () => OnReplayClicked?.Invoke());
+            UILayerManager.Instance?.Hide(GameLayerMediator.GameLayer);
+            OnReplayClicked?.Invoke();
         }
 
         /// <summary>点击"关闭"按钮。</summary>

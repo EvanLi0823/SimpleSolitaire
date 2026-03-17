@@ -80,8 +80,10 @@ namespace SimpleSolitaire.Controller
 
         protected override void OnModalLayerDisappeared()
         {
-            _gameLayer.SetActive(false);
-            _cardLayer.SetActive(!_gameLayer.activeInHierarchy && !_layoutsSettings.activeInHierarchy);
+            // UILayerManager 已将 GameLayer 关闭并自动激活 CardLayer；
+            // 若此时 LayoutSettings 面板仍处于激活状态，需覆写为隐藏，待其关闭后再由 AppearGameLayer 重新显示。
+            if (_layoutsSettings.activeInHierarchy)
+                _layerMediator?.HideCardLayer();
         }
 
         /// <summary>

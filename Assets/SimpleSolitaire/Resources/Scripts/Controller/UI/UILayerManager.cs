@@ -38,6 +38,7 @@ namespace SimpleSolitaire.Controller.UI
         private readonly Dictionary<string, UILayerBase> _layerCache
             = new Dictionary<string, UILayerBase>();
 
+
         /// <summary>活跃弹窗堆栈。栈顶为当前正在展示的弹窗。</summary>
         private readonly Stack<UILayerBase> _layerStack
             = new Stack<UILayerBase>();
@@ -160,6 +161,16 @@ namespace SimpleSolitaire.Controller.UI
         public UILayerBase GetTopLayer()
         {
             return _layerStack.Count > 0 ? _layerStack.Peek() : null;
+        }
+
+        /// <summary>
+        /// 从缓存中取出指定 Key 对应的弹窗并转型返回，不存在或类型不符时返回 null。
+        /// </summary>
+        public T GetLayer<T>(string key) where T : UILayerBase
+        {
+            if (_layerCache.TryGetValue(key, out var layer))
+                return layer as T;
+            return null;
         }
 
         /// <summary>

@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using SimpleSolitaire.Model.Config;
 using SimpleSolitaire.Model.Enum;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace SimpleSolitaire.Controller
 {
@@ -22,31 +20,11 @@ namespace SimpleSolitaire.Controller
         public KlondikeDifficultyType CurrentDifficultyType;
         public int DifficultyReplaceAmount = 16;
 
-        [Header("Rule toggles:")] [SerializeField]
-        private Toggle _oneDrawRuleToggle;
-
-        [SerializeField] private Toggle _threeDrawRuleToggle;
         private KlondikeStatisticsController KlondikeStatisticsController => StatisticsComponent as KlondikeStatisticsController;
-
-        private void ChangeRuleTypeByToggle(DeckRule rule)
-        {
-            if (CurrentRule == rule) return;
-
-            TempRule = rule;
-        }
-
-        public void InitRuleToggles()
-        {
-            TempRule = CurrentRule;
-
-            _oneDrawRuleToggle.SetIsOnWithoutNotify(CurrentRule == DeckRule.ONE_RULE);
-            _threeDrawRuleToggle.SetIsOnWithoutNotify(CurrentRule == DeckRule.THREE_RULE);
-        }
 
         public override void InitCardLogic()
         {
-            InitRuleToggles();
-
+            TempRule = CurrentRule;
             base.InitCardLogic();
         }
 
@@ -111,22 +89,15 @@ namespace SimpleSolitaire.Controller
             }
         }
 
-        public override void SubscribeEvents()
-        {
-            _oneDrawRuleToggle.onValueChanged.AddListener(delegate { ChangeRuleTypeByToggle(DeckRule.ONE_RULE); });
-            _threeDrawRuleToggle.onValueChanged.AddListener(delegate { ChangeRuleTypeByToggle(DeckRule.THREE_RULE); });
-        }
+        public override void SubscribeEvents() { }
 
-        public override void UnsubscribeEvents()
-        {
-            _oneDrawRuleToggle.onValueChanged.RemoveAllListeners();
-            _threeDrawRuleToggle.onValueChanged.RemoveAllListeners();
-        }
+        public override void UnsubscribeEvents() { }
 
         public override void OnNewGameStart()
         {
             CurrentRule = TempRule;
-            KlondikeStatisticsController.InitRuleToggle(CurrentRule);
+            // 同步规则到统计控制器（不再操作 UI Toggle，由 StatisticsLayerUI 自行管理显示状态）
+            KlondikeStatisticsController.ChangeStatisticType(CurrentRule);
             IsGameStarted = true;
         }
 

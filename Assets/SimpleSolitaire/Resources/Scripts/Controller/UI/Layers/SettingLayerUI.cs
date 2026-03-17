@@ -1,61 +1,73 @@
-using System;
 using SimpleSolitaire.Utility;
-using UnityEngine;
+using UnityEngine.UI;
 
 namespace SimpleSolitaire.Controller.UI
 {
-    /// <summary>
-    /// 视觉/设置弹窗（VisualizeSettings）的 UILayerBase 子类。
-    /// LayerKey = "VisualizeSettings"，Priority = Feature(60)，InteractType = SemiModal。
-    ///
-    /// GameLayerMediator 通过场景搜索自动绑定，无需 Inspector 拖拽。
-    /// 原先 OnClickRuleBtn / OnClickStatisticBtn 中的 GetComponent + FindObjectOfType 双重查找
-    /// 统一收归到 OnBindComponents，仅执行一次。
-    /// </summary>
     public class SettingLayerUI : UILayerBase
     {
-        /// <summary>弹窗显示时触发，用于刷新所有开关状态。GameManager 订阅此事件。</summary>
-        public event Action OnRefreshRequested;
+        private SwitchSpriteComponent     _soundSwitcher;
+        private SwitchSpriteComponent     _orientationSwitcher;
+        private SwitchSpriteComponent     _highlightDraggableSwitcher;
+        private SwitchSpriteComponent     _autoCompleteSwitcher;
+        private TextSwitchSpriteComponent _screenOrientationSwitcher;
 
-        // ── 跨节点依赖（场景查找）────────────────────────────────────────────
+        private GameManager       _gameManager;
         private GameLayerMediator _mediator;
-
-        // ── 组件绑定 ──────────────────────────────────────────────────────────
 
         protected override void OnBindComponents()
         {
-            _mediator = this.FindInScene<GameLayerMediator>();
-        }
+            _soundSwitcher              = ComponentFinder.Find<SwitchSpriteComponent>(transform, "Sound");
+            _orientationSwitcher        = ComponentFinder.Find<SwitchSpriteComponent>(transform, "Hand");
+            _highlightDraggableSwitcher = ComponentFinder.Find<SwitchSpriteComponent>(transform, "HighlightCards");
+            _autoCompleteSwitcher       = ComponentFinder.Find<SwitchSpriteComponent>(transform, "AutoComplete");
+            _screenOrientationSwitcher  = ComponentFinder.Find<TextSwitchSpriteComponent>(transform, "Orientation");
 
-        // ── 弹窗生命周期 ──────────────────────────────────────────────────────
+            _gameManager = this.FindInScene<GameManager>();
+            _mediator    = this.FindInScene<GameLayerMediator>();
+
+            ComponentFinder.Find<Button>(transform, "CloseButtonField")?.onClick.AddListener(OnClickClose);
+            ComponentFinder.Find<Button>(transform, "BGBlocker")?.onClick.AddListener(OnClickClose);
+            ComponentFinder.Find<Button>(transform, "Rules")?.onClick.AddListener(OnClickRuleBtn);
+            ComponentFinder.Find<Button>(transform, "Statistics")?.onClick.AddListener(OnClickStatisticBtn);
+
+            if (_gameManager != null)
+            {
+                ComponentFinder.Find<Button>(transform, "Hand")?.onClick.AddListener(_gameManager.OnClickOrientationSwitch);
+                ComponentFinder.Find<Button>(transform, "HighlightCards")?.onClick.AddListener(_gameManager.OnClickHighlightDraggableSwitch);
+                ComponentFinder.Find<Button>(transform, "AutoComplete")?.onClick.AddListener(_gameManager.OnClickAutoCompleteEnablingSwitch);
+                ComponentFinder.Find<Button>(transform, "Orientation")?.onClick.AddListener(_gameManager.OnClickOrientationStateSwitch);
+            }
+        }
 
         protected override void OnLayerShow()
         {
-            OnRefreshRequested?.Invoke();
+            RefreshSwitchStates();
         }
 
         protected override void OnLayerHide() { }
 
-        // ── 按钮回调（Inspector Button.onClick 绑定到此）─────────────────────
+        public void RefreshSwitchStates()
+        {
+            if (_gameManager == null) return;
 
-        /// <summary>点击"关闭"按钮。</summary>
-        public void OnClickClose()
+            _soundSwitcher?.UpdateSwitchImg(_gameManager.SoundEnabled);
+            _autoCompleteSwitcher?.UpdateSwitchImg(_gameManager.AutoCompleteEnabled);
+            _orientationSwitcher?.UpdateSwitchImg(_gameManager.IsRightHand);
+            _highlightDraggableSwitcher?.UpdateSwitchImg(_gameManager.HighlightDraggable);
+            _screenOrientationSwitcher?.UpdateSwitchImg(_gameManager.OrientationType);
+        }
+
+        private void OnClickClose()
         {
             UILayerManager.Instance?.Hide(GameLayerMediator.SettingLayer);
         }
 
-        /// <summary>
-        /// 点击"规则"按钮：关闭 Setting → 打开 HowToPlay → 关闭后回到 Setting。
-        /// </summary>
-        public void OnClickRuleBtn()
+        private void OnClickRuleBtn()
         {
             _mediator?.ShowHowToPlayLayer(returnToSetting: true);
         }
 
-        /// <summary>
-        /// 点击"统计"按钮：关闭 Setting → 打开 Statistics。
-        /// </summary>
-        public void OnClickStatisticBtn()
+        private void OnClickStatisticBtn()
         {
             _mediator?.ShowStatisticsLayer();
         }

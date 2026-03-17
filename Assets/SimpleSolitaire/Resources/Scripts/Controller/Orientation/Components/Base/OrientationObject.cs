@@ -8,11 +8,13 @@ namespace SimpleSolitaire.Controller
 
         protected void Awake()
         {
+            if (_orientationManager == null) return;
             _orientationManager.OnOrientationChanged += OnOrientationChanged;
         }
 
         protected void OnEnable()
         {
+            if (_orientationManager == null) return;
             var orientation = _orientationManager.OrientationContainer.CurrentOrientation;
             if (orientation == null)
             {
@@ -26,6 +28,7 @@ namespace SimpleSolitaire.Controller
 
         protected void OnDestroy()
         {
+            if (_orientationManager == null) return;
             _orientationManager.OnOrientationChanged -= OnOrientationChanged;
         }
 
