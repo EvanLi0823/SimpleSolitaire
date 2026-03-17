@@ -3745,15 +3745,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AdsBtn: {fileID: 1288002042}
-  _adsLayer: {fileID: 0}
-  _watchButton: {fileID: 0}
-  _adsInfoText: {fileID: 0}
-  _adsDidNotLoadText: {fileID: 0}
-  _adsClosedTooEarlyText: {fileID: 0}
-  NoAdsInfoText: DO YOU WANNA DEACTIVATE ALL ADS FOR THIS GAME SESSION? JUST WATCH
-    LAST REWARD VIDEO AND INSTALL APP. THEN ADS WON'T DISTURB YOU AGAIN!
-  GetUndoAdsInfoText: DO YOU WANNA GET FREE UNDO COUNTS? JUST WATCH REWARD VIDEO
-    AND INSTALL APP. THEN UNDO WILL ADDED TO YOUR GAME SESSION!
   _cardLogic: {fileID: 404369808}
   _adsManagerComponent: {fileID: 2056229144}
   _undoPerformComponent: {fileID: 1008506454}
@@ -3762,9 +3753,6 @@ MonoBehaviour:
   _howToPlayComponent: {fileID: 371104055}
   _orientationManager: {fileID: 948997783}
   _layerMediator: {fileID: 411655884}
-  _timeLabel: {fileID: 1643818671}
-  _scoreLabel: {fileID: 1643818670}
-  _stepsLabel: {fileID: 1643818669}
   UseLoadLastGameOption: 1
 --- !u!4 &411655883
 Transform:
@@ -7526,6 +7514,12 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 8733666319938484062, guid: 1e90d94cb97b12140ae428d162d547e9,
     type: 3}
   m_PrefabInstance: {fileID: 1288002040}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1144099962 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9103437987646453462, guid: e9e0830d0e44c504ebdcd5612a2bd52d,
+    type: 3}
+  m_PrefabInstance: {fileID: 1643818667}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1201489650
 GameObject:
@@ -11394,7 +11388,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9103437987646453462, guid: e9e0830d0e44c504ebdcd5612a2bd52d,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1643818672}
   m_SourcePrefab: {fileID: 100100000, guid: e9e0830d0e44c504ebdcd5612a2bd52d, type: 3}
 --- !u!224 &1643818668 stripped
 RectTransform:
@@ -11438,6 +11436,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1643818672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144099962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5b5a657cb9bd4cb8b21775b329f7903, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _timeLabel: {fileID: 1643818671}
+  _scoreLabel: {fileID: 1643818670}
+  _stepsLabel: {fileID: 1643818669}
 --- !u!1001 &1654790745
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -171,6 +171,24 @@ namespace SimpleSolitaire.Utility
         /// </summary>
         public static void ClearAll() => _cache.Clear();
 
+        // ── 接口查找（Object.FindObjectOfType 不支持接口，需遍历）────────────
+
+        /// <summary>
+        /// 在整个场景中查找实现了指定接口/基类的第一个 MonoBehaviour 组件。
+        /// 与 FindInScene&lt;T&gt; 不同，T 可以是接口类型（不要求继承 Component）。
+        /// 建议仅在 Awake / Start 阶段调用，避免每帧搜索。
+        /// </summary>
+        public static T FindInterfaceInScene<T>(bool includeInactive = false) where T : class
+        {
+            var allMonos = Object.FindObjectsOfType<MonoBehaviour>(includeInactive);
+            foreach (var mono in allMonos)
+            {
+                if (mono is T target) return target;
+            }
+            Debug.LogWarning($"[ComponentFinder] 场景中未找到实现 <{typeof(T).Name}> 的组件。");
+            return null;
+        }
+
         // ── 内部实现 ──────────────────────────────────────────────────────────
 
         private static T FindRecursive<T>(Transform current, string targetName, bool includeInactive) where T : Component
@@ -251,5 +269,17 @@ namespace SimpleSolitaire.Utility
         /// </summary>
         public static T FindInScene<T>(this Component self, bool includeInactive = false) where T : Component
             => ComponentFinder.FindInScene<T>(includeInactive);
+
+        /// <summary>
+        /// 在场景中查找实现了指定接口/基类的第一个 MonoBehaviour 组件。
+        /// T 可以是接口类型（不受 Component 约束限制）。
+        ///
+        /// <code>
+        /// // 在 OnBindComponents() 中获取接口引用：
+        /// _settings = this.FindServiceInScene&lt;ISettingsProvider&gt;();
+        /// </code>
+        /// </summary>
+        public static T FindServiceInScene<T>(this Component self, bool includeInactive = false) where T : class
+            => ComponentFinder.FindInterfaceInScene<T>(includeInactive);
     }
 }
