@@ -10,17 +10,35 @@
       "mcp__UnityMCP__refresh_unity",
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(git branch:*)"
+      "Bash(git branch:*)",
+      "Bash(mkdir:*)",
+      "mcp__UnityMCP__manage_scene",
+      "Bash(find /Users/lifan/Solitaire2/Assets/SimpleSolitaire/Resources/Scenes -name *.unity)",
+      "Bash(find /Users/lifan/Solitaire2/Assets/SimpleSolitaire/Resources/Scripts -name *Enum* -o -name *Type*)",
+      "mcp__UnityMCP__create_script",
+      "Bash(python3 -c \"import uuid; print\\(uuid.uuid4\\(\\).hex\\); print\\(uuid.uuid4\\(\\).hex\\)\")",
+      "mcp__UnityMCP__find_gameobjects",
+      "mcp__UnityMCP__batch_execute",
+      "mcp__UnityMCP__manage_editor",
+      "Bash(find /Users/lifan/BlockGame/Assets/BlockPuzzleGameToolkit/Resources/Localization -name *.txt -type f)",
+      "Bash(grep \"\\\\.txt$\")",
+      "Bash(grep -r \"TMPro\\\\|TextMeshPro\" /Users/lifan/Solitaire2/Assets/SimpleSolitaire/Resources/Scripts/ --include=*.cs -l)",
+      "Bash(find /Users/lifan/Solitaire2/Assets -name *.asmdef)",
+      "mcp__UnityMCP__manage_scriptable_object",
+      "Bash(sed -n '80,100p' /Users/lifan/Solitaire2/Assets/SimpleSolitaire/Resources/Scripts/Controller/Base/GameManager.cs)",
+      "Bash(sed -n '195,220p' /Users/lifan/Solitaire2/Assets/SimpleSolitaire/Resources/Scripts/Controller/Base/GameManager.cs)",
+      "Bash(sed -n '365,420p' /Users/lifan/Solitaire2/Assets/SimpleSolitaire/Resources/Scripts/Controller/Base/GameManager.cs)",
+      "mcp__UnityMCP__validate_script"
     ],
     "deny": [],
     "ask": [],
     "defaultMode": "bypassPermissions"
   },
   "model": "sonnet",
+  "language": "chinese",
   "alwaysThinkingEnabled": true,
   "features": {
     "confirmFileWrites": false
   },
-  "maxTokens": 40960,
-  "language": "chinese"
+  "maxTokens": 40960
 }

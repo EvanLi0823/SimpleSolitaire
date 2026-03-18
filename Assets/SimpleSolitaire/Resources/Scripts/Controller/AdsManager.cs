@@ -1,8 +1,8 @@
-﻿// using GoogleMobileAds.Api;
+﻿using SimpleSolitaire.Controller.NativeBridge;
+using SimpleSolitaire.Controller.NativeBridge.Enums;
 using SimpleSolitaire.Model.Enum;
 using System;
 using System.Collections;
-// using System.Collections.Generic;
 using UnityEngine;
 
 namespace SimpleSolitaire.Controller
@@ -28,7 +28,6 @@ namespace SimpleSolitaire.Controller
 
     public class AdsManager : MonoBehaviour
     {
-        public Action<RewardAdsState, RewardAdsType> RewardAction { get; set; }
         public Action<bool> BannerStateAction { get; set; }
 
         [SerializeField] private GameManager _gameManagerComponent;
@@ -38,14 +37,6 @@ namespace SimpleSolitaire.Controller
         [SerializeField] private AdsIds _androidIds;
         [SerializeField] private AdsIds _iosIds;
 
-        private string _interId;
-        private string _rewardId;
-        private string _bannerId;
-
-        private readonly string _testBannerId = "ca-app-pub-3940256099942544/6300978111";
-        private readonly string _testIntersitialId = "ca-app-pub-3940256099942544/1033173712";
-        private readonly string _testRewardId = "ca-app-pub-3940256099942544/5224354917";
-
         [Space(5f)] [SerializeField] private bool _intersitialRepeatCall;
         [SerializeField] private int _intersitialCallsBorder = 3;
         [SerializeField] private int _firstCallIntersitialTime;
@@ -53,29 +44,39 @@ namespace SimpleSolitaire.Controller
 
         private int _intersitialCallsCounter = 0;
 
-        // private AdRequest _requestAdmob;
-        // private BannerView _bannerView;
-        // private InterstitialAd _interstitial;
-
-        // private RewardedAd _rewardVideo;
-
         [SerializeField] private bool _isTestADS;
         [SerializeField] private bool _isBanner;
         [SerializeField] private bool _isIntersitial;
         [SerializeField] private bool _isReward;
         [SerializeField] private bool _isHandeldAction;
 
-        // private AdSize _currentBannerSize = AdSize.Banner;
-
         public readonly string NoAdsKey = "NoAds";
 
         private RewardAdsType _lastShowingType = RewardAdsType.None;
         private RewardVideoStatus _lastRewardVideoStatus = RewardVideoStatus.None;
 
-        private bool _isRewarded = false;
+        // 每次调用携带的回调，广告结束后触发并清零
+        private Action _pendingOnSuccess;
+        private Action _pendingOnFailed;
+
+        // 防重入标志
+        private bool _isAdPlaying = false;
+
         private float _bannerHeight = 0;
 
         public float BannerHeight => _bannerHeight;
+
+        private void OnEnable()
+        {
+            NativeBridgeManager.OnVideoPlayEnd   += HandleNativeBridgeVideoEnd;
+            NativeBridgeManager.OnVideoPlayFailed += HandleNativeBridgeVideoFailed;
+        }
+
+        private void OnDisable()
+        {
+            NativeBridgeManager.OnVideoPlayEnd   -= HandleNativeBridgeVideoEnd;
+            NativeBridgeManager.OnVideoPlayFailed -= HandleNativeBridgeVideoFailed;
+        }
 
         private void Start()
         {
@@ -87,199 +88,26 @@ namespace SimpleSolitaire.Controller
             HideBanner();
         }
 
-        /// <summary>
-        /// Initialize admob requests variable.
-        /// </summary>
-        private void AdMobRequest()
-        {
-            // if (_isTestADS)
-            // {
-            //     List<string> deviceIds = new List<string>()
-            //     {
-            //         SystemInfo.deviceUniqueIdentifier
-            //     };
-            //
-            //     RequestConfiguration requestConfiguration = new RequestConfiguration();
-            //     requestConfiguration.TestDeviceIds.AddRange(deviceIds);
-            //
-            //     MobileAds.SetRequestConfiguration(requestConfiguration);
-            // }
-            //
-            // _requestAdmob = new AdRequest();
-        }
-
         #region Requests ADS
 
         /// <summary>
-        /// Banned ad request.
+        /// Banner 广告。NativeBridge 模式下暂不支持，保留接口供后续扩展。
         /// </summary>
-        public void ShowBanner()
-        {
-            // if (IsHasKeyNoAds() || !_isBanner)
-            //     return;
-            //
-            // if (_bannerView != null)
-            // {
-            //     Debug.Log("Destroying banner ad.");
-            //     _bannerView.Destroy();
-            //     _bannerView = null;
-            // }
-            //
-            // _bannerView = new BannerView((_isTestADS) ? _testBannerId : _bannerId, _currentBannerSize, AdPosition.Bottom);
-            //
-            // if (_bannerView != null)
-            // {
-            //     AdMobRequest();
-            //     _bannerView.LoadAd(_requestAdmob);
-            // }
-            //
-            // _bannerHeight = _currentBannerSize.Height * GetAdmobBannerScaleBasedOnDPI();
-            // BannerStateAction?.Invoke(true);
-        }
+        public void ShowBanner() { }
 
         /// <summary>
-        /// Intersitial video request.
+        /// Intersitial video request. NativeBridge 模式下由原生侧自行管理预加载，无需客户端请求。
         /// </summary>
-        public void RequestInterstitial()
-        {
-            // if (IsHasKeyNoAds())
-            //     return;
-            //
-            // if (_interstitial != null)
-            // {
-            //     _interstitial.Destroy();
-            //     _interstitial = null;
-            // }
-            //
-            // AdMobRequest();
-            // var adUnitId = _isTestADS ? _testIntersitialId : _interId;
-            // InterstitialAd.Load(adUnitId, _requestAdmob,
-            //     (InterstitialAd ad, LoadAdError error) =>
-            //     {
-            //         // if error is not null, the load request failed.
-            //         if (error != null || ad == null)
-            //         {
-            //             Debug.LogError("interstitial ad failed to load an ad " +
-            //                            "with error : " + error);
-            //             return;
-            //         }
-            //
-            //         Debug.Log("Interstitial ad loaded with response : "
-            //                   + ad.GetResponseInfo());
-            //
-            //         _interstitial = ad;
-            //     });
-        }
+        public void RequestInterstitial() { }
 
         /// <summary>
-        /// Reward video request.
+        /// Reward video request. NativeBridge 模式下由原生侧自行管理预加载，无需客户端请求。
         /// </summary>
-        private void RequestRewardBasedVideo(bool isRequiredRequest = false)
-        {
-            // if (IsHasKeyNoAds() && !isRequiredRequest)
-            //     return;
-            //
-            // if (_rewardVideo != null)
-            // {
-            //     _rewardVideo.Destroy();
-            //     _rewardVideo = null;
-            // }
-            //
-            // var adUnitId = _isTestADS ? _testRewardId : _rewardId;
-            // AdMobRequest();
-            // // send the request to load the ad.
-            // RewardedAd.Load(adUnitId, _requestAdmob,
-            //     (RewardedAd ad, LoadAdError error) =>
-            //     {
-            //         // if error is not null, the load request failed.
-            //         if (error != null || ad == null)
-            //         {
-            //             Debug.LogError("Rewarded ad failed to load an ad " +
-            //                            "with error : " + error);
-            //             return;
-            //         }
-            //
-            //         Debug.Log("Rewarded ad loaded with response : "
-            //                   + ad.GetResponseInfo());
-            //
-            //         _rewardVideo = ad;
-            //     });
-        }
+        private void RequestRewardBasedVideo() { }
 
         #endregion
 
         #region Handlers
-
-        // private void RegisterReloadHandler(InterstitialAd ad)
-        // {
-        //     // Raised when the ad closed full screen content.
-        //     ad.OnAdFullScreenContentClosed += () =>
-        //     {
-        //         Debug.Log("Interstitial Ad full screen content closed.");
-        //
-        //         // Reload the ad so that we can show another as soon as possible.
-        //         RequestInterstitial();
-        //     };
-        //     // Raised when the ad failed to open full screen content.
-        //     ad.OnAdFullScreenContentFailed += (AdError error) =>
-        //     {
-        //         Debug.LogError("Interstitial ad failed to open full screen content " +
-        //                        "with error : " + error);
-        //
-        //         // Reload the ad so that we can show another as soon as possible.
-        //         RequestInterstitial();
-        //     };
-        // }
-        //
-        // private void RegisterReloadHandler(RewardedAd ad)
-        // {
-        //     // Raised when the ad closed full screen content.
-        //     ad.OnAdFullScreenContentClosed += () =>
-        //     {
-        //         Debug.Log("Rewarded Ad full screen content closed.");
-        //
-        //         // Reload the ad so that we can show another as soon as possible.
-        //         RequestRewardBasedVideo();
-        //     };
-        //     // Raised when the ad failed to open full screen content.
-        //     ad.OnAdFullScreenContentFailed += (AdError error) =>
-        //     {
-        //         Debug.LogError("Rewarded ad failed to open full screen content " +
-        //                        "with error : " + error);
-        //
-        //         // Reload the ad so that we can show another as soon as possible.
-        //         RequestRewardBasedVideo();
-        //     };
-        // }
-        //
-        // private void RegisterEventHandlers(RewardedAd ad)
-        // {
-        //     // Raised when the ad is estimated to have earned money.
-        //     ad.OnAdPaid += (AdValue adValue) =>
-        //     {
-        //         Debug.Log(String.Format("Rewarded ad paid {0} {1}.",
-        //             adValue.Value,
-        //             adValue.CurrencyCode));
-        //     };
-        //     // Raised when an impression is recorded for an ad.
-        //     ad.OnAdImpressionRecorded += () => { Debug.Log("Rewarded ad recorded an impression."); };
-        //     // Raised when a click is recorded for an ad.
-        //     ad.OnAdClicked += () => { Debug.Log("Rewarded ad was clicked."); };
-        //     // Raised when an ad opened full screen content.
-        //     ad.OnAdFullScreenContentOpened += () => { Debug.Log("Rewarded ad full screen content opened."); };
-        //     // Raised when the ad closed full screen content.
-        //     ad.OnAdFullScreenContentClosed += () =>
-        //     {
-        //         Debug.Log("Rewarded ad full screen content closed.");
-        //         HandleClosedBasedVideoRewarded();
-        //     };
-        //     // Raised when the ad failed to open full screen content.
-        //     ad.OnAdFullScreenContentFailed += (AdError error) =>
-        //     {
-        //         Debug.LogError("Rewarded ad failed to open full screen content " +
-        //                        "with error : " + error);
-        //     };
-        // }
 
         #endregion
 
@@ -295,47 +123,42 @@ namespace SimpleSolitaire.Controller
         }
 
         /// <summary>
-        /// Show intersitial ads <see cref="_interstitial"/> if ads available for watch.
+        /// 通过 NativeBridge 显示插屏广告（协程方式，与激励视频保持一致）。
         /// </summary>
         public void ShowInterstitial()
         {
-            // if (IsHasKeyNoAds() || !_isIntersitial)
-            //     return;
-            //
-            // if (_interstitial != null && _interstitial.CanShowAd())
-            // {
-            //     Debug.Log("Showing interstitial ad.");
-            //     _interstitial.Show();
-            //     RegisterReloadHandler(_interstitial);
-            // }
-            // else
-            // {
-            //     Debug.LogError("Interstitial ad is not ready yet.");
-            // }
+            if (IsHasKeyNoAds() || !_isIntersitial) return;
+            StartCoroutine(LoadInterstitialVideo());
+        }
+
+        private IEnumerator LoadInterstitialVideo()
+        {
+            if (_isHandeldAction) AdsHandheld.Show();
+
+            float waited = 0f;
+            while (!NativeBridgeManager.Instance.IsInitSuccess() && waited < 3f)
+            {
+                waited += Time.deltaTime;
+                yield return null;
+            }
+
+            if (_isHandeldAction) AdsHandheld.Hide();
+
+            if (NativeBridgeManager.Instance.IsADReady(AdType.Interstitial))
+            {
+                NativeBridgeManager.Instance.SendMessageToPlatform(
+                    BridgeMessageType.ShowVideo, (int)AdType.Interstitial);
+            }
+            else
+            {
+                Debug.LogWarning("[AdsManager] 插屏广告尚未就绪");
+            }
         }
 
         /// <summary>
-        /// Show reward video <see cref="_rewardVideo"/> if ads available for watch.
+        /// 激励视频（通过 NoAdsAction / ShowGetUndoAction 触发，此入口保留兼容性）。
         /// </summary>
-        public void ShowRewardBasedVideo()
-        {
-            // if (IsHasKeyNoAds() || !_isReward)
-            //     return;
-            //
-            // const string rewardMsg =
-            //     "Rewarded ad rewarded the user. Type: {0}, amount: {1}.";
-            //
-            // if (_rewardVideo != null && _rewardVideo.CanShowAd())
-            // {
-            //     RegisterReloadHandler(_rewardVideo);
-            //     RegisterEventHandlers(_rewardVideo);
-            //     _rewardVideo.Show((Reward reward) =>
-            //     {
-            //         // TODO: Reward the user.
-            //         Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
-            //     });
-            // }
-        }
+        public void ShowRewardBasedVideo() { }
 
         /// <summary>
         /// This method hide Smart banner from bottom of screen.
@@ -343,69 +166,64 @@ namespace SimpleSolitaire.Controller
         public void HideBanner()
         {
             _bannerHeight = 0;
-
-            // if (_bannerView != null)
-            // {
-            //     _bannerView.Hide();
-            //     BannerStateAction?.Invoke(false);
-            // }
         }
 
         /// <summary>
         /// Show reward video. If user watch it the ads will disappear for current game session.
         /// </summary>
-        public void NoAdsAction()
+        public void NoAdsAction(Action onSuccess = null, Action onFailed = null)
         {
-            _lastShowingType = RewardAdsType.NoAds;
-            // StartCoroutine(LoadRewardedVideo(_rewardVideo, _lastShowingType));
-            StartCoroutine(LoadRewardedVideo(null, _lastShowingType));
+            if (_isAdPlaying) { onFailed?.Invoke(); return; }
+            _lastShowingType  = RewardAdsType.NoAds;
+            _pendingOnSuccess = onSuccess;
+            _pendingOnFailed  = onFailed;
+            _isAdPlaying      = true;
+            StartCoroutine(LoadRewardedVideo(_lastShowingType));
         }
 
         /// <summary>
         /// Show reward video. If user watch it the free undo tries will be add for user.
         /// </summary>
-        public void ShowGetUndoAction()
+        public void ShowGetUndoAction(Action onSuccess = null, Action onFailed = null)
         {
-            _lastShowingType = RewardAdsType.GetUndo;
-            // StartCoroutine(LoadRewardedVideo(_rewardVideo, _lastShowingType));
-            StartCoroutine(LoadRewardedVideo(null, _lastShowingType));
+            if (_isAdPlaying) { onFailed?.Invoke(); return; }
+            _lastShowingType  = RewardAdsType.GetUndo;
+            _pendingOnSuccess = onSuccess;
+            _pendingOnFailed  = onFailed;
+            _isAdPlaying      = true;
+            StartCoroutine(LoadRewardedVideo(_lastShowingType));
         }
 
-        // private IEnumerator LoadRewardedVideo(RewardedAd ads, RewardAdsType type)
-        private IEnumerator LoadRewardedVideo(object ads, RewardAdsType type)
+        private IEnumerator LoadRewardedVideo(RewardAdsType _)
         {
             _lastRewardVideoStatus = RewardVideoStatus.None;
 
-            // if (_isHandeldAction)
-            // {
-            //     AdsHandheld.Show();
-            // }
-            //
-            // yield return new WaitUntil(() => _isTestADS
-            //                                  || _rewardVideo != null && _rewardVideo.CanShowAd());
-            // if (_isHandeldAction)
-            // {
-            //     AdsHandheld.Hide();
-            // }
-            //
-            // _lastRewardVideoStatus = _rewardVideo != null && _rewardVideo.CanShowAd() || _isTestADS ? _lastRewardVideoStatus = RewardVideoStatus.Loaded : RewardVideoStatus.FailedToLoad;
-            //
-            // _isRewarded = false;
-            //
-            // switch (_lastRewardVideoStatus)
-            // {
-            //     case RewardVideoStatus.None:
-            //     case RewardVideoStatus.FailedToLoad:
-            //         RewardAction?.Invoke(RewardAdsState.DID_NOT_LOADED, type);
-            //         break;
-            //     case RewardVideoStatus.Loaded:
-            //         RegisterReloadHandler(ads);
-            //         RegisterEventHandlers(ads);
-            //         ads.Show(HandleRewardBasedVideoRewarded);
-            //         break;
-            // }
+            if (_isHandeldAction) AdsHandheld.Show();
 
-            yield break;
+            // 等待 NativeBridge 初始化完成（最多等 3 秒）
+            float waited = 0f;
+            while (!NativeBridgeManager.Instance.IsInitSuccess() && waited < 3f)
+            {
+                waited += Time.deltaTime;
+                yield return null;
+            }
+
+            if (_isHandeldAction) AdsHandheld.Hide();
+
+            bool isReady = NativeBridgeManager.Instance.IsADReady(AdType.RewardVideo);
+            _lastRewardVideoStatus = isReady ? RewardVideoStatus.Loaded : RewardVideoStatus.FailedToLoad;
+
+            switch (_lastRewardVideoStatus)
+            {
+                case RewardVideoStatus.FailedToLoad:
+                    InvokeAndClearCallbacks(success: false);
+                    break;
+                case RewardVideoStatus.Loaded:
+                    // 发起播放；结果通过 NativeBridgeManager.OnVideoPlayEnd/OnVideoPlayFailed 回调
+                    NativeBridgeManager.Instance.SendMessageToPlatform(
+                        BridgeMessageType.ShowVideo, (int)AdType.RewardVideo);
+                    break;
+            }
         }
             
         #endregion
@@ -413,41 +231,42 @@ namespace SimpleSolitaire.Controller
         #region EventsHandlers
 
         /// <summary>
-        /// On close reward video event.
+        /// NativeBridge 视频播放成功回调（原生调用 ADPlayResult 后触发）。
+        /// adType：0=激励视频 1=插屏 2=AdMob，仅处理激励视频类型。
         /// </summary>
-        private void HandleClosedBasedVideoRewarded()
+        private void HandleNativeBridgeVideoEnd(int adType)
         {
-            Debug.LogError($"HandleRewardBasedVideoRewarded {_isRewarded}");
-
-            if (_isRewarded)
-            {
-                return;
-            }
-
-            switch (_lastShowingType)
-            {
-                case RewardAdsType.NoAds:
-                    RequestRewardBasedVideo();
-                    break;
-                case RewardAdsType.GetUndo:
-                    RequestRewardBasedVideo(true);
-                    break;
-            }
-
-            RewardAction?.Invoke(RewardAdsState.TOO_EARLY_CLOSE, _lastShowingType);
+            if (_lastShowingType == RewardAdsType.None) return;
+            if (adType != (int)AdType.RewardVideo) return;
+            OnRewardedUser();
+            InvokeAndClearCallbacks(success: true);
         }
 
         /// <summary>
-        /// On full watch reward video event.
+        /// NativeBridge 视频播放失败回调（原生调用 ADPlayResult isSuccess=false 后触发）。
         /// </summary>
-        // public void HandleRewardBasedVideoRewarded(Reward args)
-        // {
-        //     _isRewarded = true;
-        //
-        //     Debug.LogError($"HandleRewardBasedVideoRewarded {_isRewarded}");
-        //
-        //     OnRewardedUser();
-        // }
+        private void HandleNativeBridgeVideoFailed(int adType)
+        {
+            if (_lastShowingType == RewardAdsType.None) return;
+            if (adType != (int)AdType.RewardVideo) return;
+            InvokeAndClearCallbacks(success: false);
+        }
+
+        /// <summary>
+        /// 触发本次调用携带的回调并清零，防止重复触发。
+        /// </summary>
+        private void InvokeAndClearCallbacks(bool success)
+        {
+            Action onSuccess = _pendingOnSuccess;
+            Action onFailed  = _pendingOnFailed;
+            _pendingOnSuccess = null;
+            _pendingOnFailed  = null;
+            _lastShowingType  = RewardAdsType.None;
+            _isAdPlaying      = false;
+
+            if (success) onSuccess?.Invoke();
+            else         onFailed?.Invoke();
+        }
 
         /// <summary>
         /// Reward actions by type of reward ads.
@@ -460,12 +279,12 @@ namespace SimpleSolitaire.Controller
                     PlayerPrefs.SetInt(NoAdsKey, 1);
                     HideBanner();
                     _gameManagerComponent.OnNoAdsRewardedUser();
-                    RequestRewardBasedVideo(true);
+                    RequestRewardBasedVideo();
                     break;
                 case RewardAdsType.GetUndo:
                     _gameManagerComponent.OnClickAdsCloseBtn();
                     _undoPerformerComponent.UpdateUndoCounts();
-                    RequestRewardBasedVideo(true);
+                    RequestRewardBasedVideo();
                     break;
             }
         }
@@ -477,42 +296,20 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void InitializeADS()
         {
-// #if UNITY_STANDALONE || UNITY_WEBGL
-//             return;
-// #endif
-//             if (IsHasKeyNoAds())
-//                 PlayerPrefs.DeleteKey(NoAdsKey);
-//
-//             MobileAds.Initialize(initStatus => { Debug.Log("Sdk init status:" + initStatus); });
-//
-//             var ids = Application.platform == RuntimePlatform.Android ? _androidIds : Application.platform == RuntimePlatform.IPhonePlayer ? _iosIds : null;
-//
-//             if (ids != null)
-//             {
-//                 _interId = ids.InterId;
-//                 _rewardId = ids.RewardId;
-//                 _bannerId = ids.BannerId;
-//             }
-//
-//             if (_isBanner)
-//             {
-//                 ShowBanner();
-//             }
-//
-//             if (_isReward)
-//             {
-//                 RequestRewardBasedVideo(true);
-//             }
-//
-//             if (_isIntersitial)
-//             {
-//                 RequestInterstitial();
-//                 if (_intersitialRepeatCall)
-//                 {
-//                     // First call after _firstCallIntersitialTime seconds. Repeating intersitial video every _repeatIntersitialTime seconds.
-//                     InvokeRepeating("ShowInterstitial", _firstCallIntersitialTime, _repeatIntersitialTime);
-//                 }
-//             }
+#if UNITY_STANDALONE || UNITY_WEBGL
+            return;
+#endif
+            if (NativeBridgeManager.Instance == null)
+            {
+                Debug.LogWarning("[AdsManager] NativeBridgeManager 实例不存在，广告初始化跳过");
+                return;
+            }
+
+            if (_isBanner)
+                ShowBanner();
+
+            if (_isIntersitial && _intersitialRepeatCall)
+                InvokeRepeating(nameof(ShowInterstitial), _firstCallIntersitialTime, _repeatIntersitialTime);
         }
 
         /// <summary>
@@ -527,41 +324,6 @@ namespace SimpleSolitaire.Controller
             return PlayerPrefs.HasKey(NoAdsKey);
         }
 
-        private float GetAdmobBannerScaleBasedOnDPI()
-        {
-            //By default banner has no scaling.
-            float scale = 1f;
-
-            //All information about scaling has provided on Google Admob API
-            //Low Density Screens, around 120 DPI, scaling factor 0.75, e.g. 320×50 becomes 240×37.
-            //Medium Density Screens, around 160 DPI, no scaling, e.g. 320×50 stays at 320×50.
-            //High Density Screens, around 240 DPI, scaling factor 1.5, e.g. 320×50 becomes 480×75.
-            //Extra High Density Screens, around 320 DPI, scaling factor 2, e.g. 320×50 becomes 640×100.
-            //Extra Extra High Density Screens, around 480 DPI, scaling factor 3, e.g. 320×50 becomes 960×150.
-
-            if (Screen.dpi > 480)
-            {
-                scale = 3f;
-            }
-            else if (Screen.dpi > 320)
-            {
-                scale = 2f;
-            }
-            else if (Screen.dpi > 240)
-            {
-                scale = 1.5f;
-            }
-            else if (Screen.dpi > 160)
-            {
-                scale = 1f;
-            }
-            else if (Screen.dpi > 120)
-            {
-                scale = 0.75f;
-            }
-
-            return scale;
-        }
     }
     
     public static class AdsHandheld

@@ -70,18 +70,32 @@ namespace SimpleSolitaire.Controller.UI
             UILayerManager.Instance?.Hide(GameLayerMediator.AdsLayer);
         }
 
-        /// <summary>WatchButton 点击：根据当前广告类型直接调用 AdsManager，无需经过 GameManager。</summary>
+        /// <summary>WatchButton 点击：将成功/失败回调传入 AdsManager，结果由本层自行处理。</summary>
         private void OnWatchAdsClicked()
         {
             switch (_currentAdsType)
             {
                 case RewardAdsType.GetUndo:
-                    _adsManager?.ShowGetUndoAction();
+                    _adsManager?.ShowGetUndoAction(
+                        onSuccess: OnAdSuccess,
+                        onFailed:  OnAdFailed);
                     break;
                 case RewardAdsType.NoAds:
-                    _adsManager?.NoAdsAction();
+                    _adsManager?.NoAdsAction(
+                        onSuccess: OnAdSuccess,
+                        onFailed:  OnAdFailed);
                     break;
             }
+        }
+
+        private void OnAdSuccess()
+        {
+            UILayerManager.Instance?.Hide(GameLayerMediator.AdsLayer);
+        }
+
+        private void OnAdFailed()
+        {
+            ShowRewardResult(RewardAdsState.DID_NOT_LOADED);
         }
 
         private void UpdateInfoText(RewardAdsType type)
