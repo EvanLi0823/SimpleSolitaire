@@ -1,0 +1,37 @@
+btn_play : 开始
+btn_pause : 暂停
+btn_resume : 继续
+btn_restart : 重新开始
+btn_undo : 撤销
+btn_hint : 提示
+btn_settings : 设置
+btn_back : 返回
+btn_close : 关闭
+btn_confirm : 确认
+btn_cancel : 取消
+
+lbl_score : 分数
+lbl_time : 时间
+lbl_steps : 步数
+lbl_best : 最高分
+
+msg_win : 恭喜过关！
+msg_game_over : 游戏结束
+msg_no_moves : 无法继续
+msg_auto_complete : 自动完成
+
+setting_sound : 声音
+setting_auto_complete : 自动完成
+setting_highlight : 高亮可拖动牌
+setting_orientation : 屏幕方向
+setting_hand : 惯用手
+
+ads_watch : 观看广告
+ads_no_ads : 暂无广告
+ads_closed_early : 广告关闭过早
+
+game_klondike : 经典纸牌
+game_spider : 蜘蛛纸牌
+game_freecell : 自由蜘蛛
+game_pyramid : 金字塔
+game_tripeaks : 三峰纸牌

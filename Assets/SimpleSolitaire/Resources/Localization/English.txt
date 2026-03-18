@@ -1,0 +1,37 @@
+btn_play : Play
+btn_pause : Pause
+btn_resume : Resume
+btn_restart : Restart
+btn_undo : Undo
+btn_hint : Hint
+btn_settings : Settings
+btn_back : Back
+btn_close : Close
+btn_confirm : Confirm
+btn_cancel : Cancel
+
+lbl_score : Score
+lbl_time : Time
+lbl_steps : Steps
+lbl_best : Best
+
+msg_win : Congratulations!
+msg_game_over : Game Over
+msg_no_moves : No More Moves
+msg_auto_complete : Auto Complete
+
+setting_sound : Sound
+setting_auto_complete : Auto Complete
+setting_highlight : Highlight Draggable
+setting_orientation : Orientation
+setting_hand : Hand Orientation
+
+ads_watch : Watch Ad
+ads_no_ads : No Ads Available
+ads_closed_early : Ad Closed Too Early
+
+game_klondike : Klondike
+game_spider : Spider
+game_freecell : FreeCell
+game_pyramid : Pyramid
+game_tripeaks : TriPeaks
