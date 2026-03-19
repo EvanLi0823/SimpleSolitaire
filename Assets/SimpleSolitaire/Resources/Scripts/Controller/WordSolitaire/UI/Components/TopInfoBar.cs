@@ -57,14 +57,14 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
 
         private void OnEnable()
         {
-            // 订阅事件
-            GameEventBus.OnScoreChanged += OnCoinsChanged;
+            // 订阅金币变化事件
+            GameEventBus.OnCoinsChanged += OnCoinsChanged;
         }
 
         private void OnDisable()
         {
-            // 注销事件
-            GameEventBus.OnScoreChanged -= OnCoinsChanged;
+            // 注销金币变化事件
+            GameEventBus.OnCoinsChanged -= OnCoinsChanged;
         }
 
         // ── 事件处理 ──────────────────────────────────────────────────────────
