@@ -38,6 +38,35 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public static event Action OnSettingsChanged;
 
+        // ── Word Solitaire 特有事件 ────────────────────────────────────────────
+
+        /// <summary>金币数量变化时发布。参数：当前金币数量。订阅者：TopInfoBar。</summary>
+        public static event Action<int> OnCoinsChanged;
+
+        /// <summary>关卡变化时发布。参数：新关卡ID。订阅者：LevelManager, StatisticsController。</summary>
+        public static event Action<int> OnLevelChanged;
+
+        /// <summary>提示道具数量变化时发布。参数：剩余数量。订阅者：BottomToolBar。</summary>
+        public static event Action<int> OnHintCountChanged;
+
+        /// <summary>撤回道具数量变化时发布。参数：剩余数量。订阅者：BottomToolBar。</summary>
+        public static event Action<int> OnUndoCountChanged;
+
+        /// <summary>万能牌道具数量变化时发布。参数：剩余数量。订阅者：BottomToolBar。</summary>
+        public static event Action<int> OnJokerCountChanged;
+
+        /// <summary>卡牌成功匹配到分类槽时发布。参数：(categoryId, currentCount, targetCount)。订阅者：CategorySlotUI。</summary>
+        public static event Action<string, int, int> OnCategoryMatched;
+
+        /// <summary>牌库耗尽时发布。订阅者：GameManager。</summary>
+        public static event Action OnPackEmpty;
+
+        /// <summary>游戏胜利时发布。参数：(levelId, rewardCoins)。订阅者：WinLayerUI, StatisticsController。</summary>
+        public static event Action<int, int> OnWordSolitaireWin;
+
+        /// <summary>游戏失败时发布。参数：levelId。订阅者：LoseLayerUI。</summary>
+        public static event Action<int> OnWordSolitaireLose;
+
         // ── 发布方法（统一 null 检查，避免调用方重复判断）────────────────────
 
         public static void PublishScoreChanged(int score)
@@ -54,5 +83,34 @@ namespace SimpleSolitaire.Controller
 
         public static void PublishSettingsChanged()
             => OnSettingsChanged?.Invoke();
+
+        // ── Word Solitaire 发布方法 ────────────────────────────────────────────
+
+        public static void PublishCoinsChanged(int coins)
+            => OnCoinsChanged?.Invoke(coins);
+
+        public static void PublishLevelChanged(int levelId)
+            => OnLevelChanged?.Invoke(levelId);
+
+        public static void PublishHintCountChanged(int count)
+            => OnHintCountChanged?.Invoke(count);
+
+        public static void PublishUndoCountChanged(int count)
+            => OnUndoCountChanged?.Invoke(count);
+
+        public static void PublishJokerCountChanged(int count)
+            => OnJokerCountChanged?.Invoke(count);
+
+        public static void PublishCategoryMatched(string categoryId, int currentCount, int targetCount)
+            => OnCategoryMatched?.Invoke(categoryId, currentCount, targetCount);
+
+        public static void PublishPackEmpty()
+            => OnPackEmpty?.Invoke();
+
+        public static void PublishWordSolitaireWin(int levelId, int rewardCoins)
+            => OnWordSolitaireWin?.Invoke(levelId, rewardCoins);
+
+        public static void PublishWordSolitaireLose(int levelId)
+            => OnWordSolitaireLose?.Invoke(levelId);
     }
 }
