@@ -1,5 +1,6 @@
 using SimpleSolitaire.Controller.UI;
 using SimpleSolitaire.Utility;
+using SimpleSolitaire.Controller.WordSolitaire;  // 添加命名空间引用
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -85,10 +86,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
         /// </summary>
         private void OnClickRetry()
         {
-            UILayerManager.Instance?.Hide(LayerKey, onComplete: () =>
-            {
-                _gameManager?.RestartGame();
-            });
+            UILayerManager.Instance?.Hide(LayerKey);
+            _gameManager?.RestartGame();
         }
 
         /// <summary>
@@ -96,10 +95,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
         /// </summary>
         private void OnClickMainMenu()
         {
-            UILayerManager.Instance?.Hide(LayerKey, onComplete: () =>
-            {
-                _gameManager?.ReturnToMainMenu();
-            });
+            UILayerManager.Instance?.Hide(LayerKey);
+            _gameManager?.ReturnToMainMenu();
         }
     }
 }

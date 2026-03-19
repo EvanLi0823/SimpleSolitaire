@@ -1,0 +1,430 @@
+# Unity 组件查找规范
+
+> **规则等级**: 强制 (Must)  
+> **适用范围**: 所有 Unity UI 组件和预制体  
+> **创建日期**: 2026-03-19  
+> **相关工具**: `SimpleSolitaire.Utility.ComponentFinder`
+
+---
+
+## 一、规范目标
+
+**强制要求**: 所有 Unity 项目中组件查找操作**必须**使用 `ComponentFinder` 工具类。
+
+### 禁止的做法 ❌
+- 禁止使用 `transform.Find("path").GetComponent<T>()`
+- 禁止使用 `GetComponentInChildren<T>()` 进行子节点查找
+- 禁止直接访问 `GameObject.transform` 链式调用查找
+- 禁止重复查找相同的组件而不缓存
+
+### 推荐的做法 ✅
+- **必须使用** `ComponentFinder.Get<T>(transform, path)` 进行路径查找
+- **必须使用** `ComponentFinder.Find<T>(transform, name)` 进行名称递归查找
+- **必须使用** 扩展方法 `this.Get<T>(path)` 和 `this.Find<T>(name)`
+- **必须使用** 缓存机制，避免重复查找
+
+---
+
+## 二、ComponentFinder 工具类说明
+
+### 2.1 工具位置
+- **命名空间**: `SimpleSolitaire.Utility`
+- **文件路径**: `Assets/SimpleSolitaire/Resources/Scripts/Utility/ComponentFinder.cs`
+
+### 2.2 核心方法
+
+#### 路径查找（推荐）
+```csharp
+// 按路径精确查找子节点组件
+T ComponentFinder.Get<T>(Transform root, string path, bool useCache = true)
+
+// 扩展方法（在 MonoBehaviour 内部使用）
+T this.Get<T>(string path, bool useCache = true)
+```
+
+**适用场景**: 预制体结构固定，节点路径明确时使用
+
+**示例**:
+```csharp
+// 查找 Front/FrontNormal 节点上的 Image 组件
+_frontNormalImage = this.Get<Image>("Front/FrontNormal");
+
+// 查找深层嵌套节点
+_cancelButton = this.Get<Button>("Dialog/Header/CancelButton");
+```
+
+#### 名称查找
+```csharp
+// 按名称递归查找子节点（深度优先）
+T ComponentFinder.Find<T>(Transform root, string nodeName, bool includeInactive = true, bool useCache = true)
+
+// 扩展方法
+T this.Find<T>(string nodeName, bool includeInactive = true, bool useCache = true)
+```
+
+**适用场景**: 不关心节点层级，只需要按名称查找时使用
+
+**示例**:
+```csharp
+// 在整个子树中查找名为 "Icon" 的 Image 组件
+_categoryIcon = this.Find<Image>("Icon");
+
+// 查找未激活节点
+_hiddenText = this.Find<Text>("HiddenText", includeInactive: true);
+```
+
+#### 场景全局查找
+```csharp
+// 在整个场景中查找指定类型组件
+T ComponentFinder.FindInScene<T>(bool includeInactive = false)
+
+// 扩展方法
+T this.FindInScene<T>(bool includeInactive = false)
+```
+
+**适用场景**: 跨 GameObject 引用，如获取 GameManager、CardLogic 等单例组件
+
+**示例**:
+```csharp
+// 在 Awake() 中获取游戏管理器
+_gameManager = this.FindInScene<GameManager>();
+
+// 获取 CardLogic 组件
+cardLogic = this.FindInScene<CardLogic>();
+```
+
+#### 批量查找
+```csharp
+// 获取子树中所有匹配类型的组件
+T[] ComponentFinder.GetAll<T>(Transform root, bool includeInactive = true)
+
+// 扩展方法
+T[] this.GetAll<T>(bool includeInactive = true)
+```
+
+**适用场景**: 需要获取多个同类型组件时使用
+
+**示例**:
+```csharp
+// 获取所有按钮
+Button[] allButtons = this.GetAll<Button>();
+
+// 获取所有文本组件（包含未激活）
+Text[] allTexts = this.GetAll<Text>(includeInactive: true);
+```
+
+---
+
+## 三、使用规范
+
+### 3.1 自动查找时机
+
+**必须在 `Awake()` 或 `Start()` 中执行**，禁止在 `Update()` 或频繁调用的方法中使用。
+
+**正确示例**:
+```csharp
+public class MyComponent : MonoBehaviour
+{
+    private Text _titleText;
+    private Button _confirmButton;
+    
+    protected void Awake()
+    {
+        // 在 Awake() 中查找并缓存
+        _titleText = this.Get<Text>("Header/TitleText");
+        _confirmButton = this.Get<Button>("Footer/ConfirmButton");
+    }
+    
+    private void Update()
+    {
+        // 直接使用缓存的引用，不重复查找
+        _titleText.text = Time.time.ToString();
+    }
+}
+```
+
+**错误示例**:
+```csharp
+private void Update()
+{
+    // ❌ 禁止在 Update() 中重复查找
+    Text titleText = this.Get<Text>("Header/TitleText");
+    titleText.text = Time.time.ToString();
+}
+```
+
+### 3.2 缓存策略
+
+**默认开启缓存**（`useCache = true`），禁止无故关闭缓存。
+
+缓存机制：
+- **缓存 Key**: `"{rootInstanceID}:p:{path}:{T}"` 或 `"{rootInstanceID}:n:{name}:{T}"`
+- **自动清理**: 组件销毁时自动从缓存中移除
+- **手动清理**: 节点销毁时调用 `ComponentFinder.ClearCache(transform)`
+- **全局清理**: 场景切换时调用 `ComponentFinder.ClearAll()`
+
+**特殊情况关闭缓存**: 仅在需要动态刷新组件引用时，才将 `useCache` 设为 `false`
+
+### 3.3 空值处理
+
+所有查找方法在找不到组件时返回 `null`，必须进行空值检查。
+
+**推荐模式**:
+```csharp
+private Text _titleText;
+
+protected void Awake()
+{
+    _titleText = this.Get<Text>("Header/TitleText");
+    
+    // 必须有值，否则抛出异常或记录错误
+    if (_titleText == null)
+    {
+        Debug.LogError($"[{nameof(MyComponent)}] 未找到 TitleText 组件，请检查预制体结构。", this);
+        return;
+    }
+}
+```
+
+### 3.4 命名规范
+
+**节点路径命名**: 使用 PascalCase 或 camelCase，路径分隔符使用 `/`
+
+**推荐命名**:
+```
+Header/TitleText
+Footer/ConfirmButton
+Content/ScrollView/Viewport/Content
+```
+
+**避免命名**:
+```
+header/titletext        // ❌ 全小写，不清晰
+HEADER/TITLE_TEXT       // ❌ 全大写，不统一
+Header\\TitleText        // ❌ 使用反斜杠
+Header.TitleText        // ❌ 使用点号
+```
+
+---
+
+## 四、代码示例
+
+### 4.1 UI 弹窗组件（UILayerBase）
+
+```csharp
+using UnityEngine;
+using UnityEngine.UI;
+using SimpleSolitaire.Utility;
+
+public class MyDialog : UILayerBase
+{
+    [Header("UI 引用（可选配置）")]
+    [SerializeField] private Text _titleText;
+    [SerializeField] private Text _messageText;
+    [SerializeField] private Button _confirmButton;
+    [SerializeField] private Button _cancelButton;
+    
+    protected override void OnBindComponents()
+    {
+        // 使用 ComponentFinder 自动查找，无需手动拖拽
+        _titleText = this.Get<Text>("Header/TitleText");
+        _messageText = this.Get<Text>("Content/MessageText");
+        _confirmButton = this.Get<Button>("Footer/ConfirmButton");
+        _cancelButton = this.Get<Button>("Footer/CancelButton");
+        
+        // 验证所有必需组件
+        ValidateComponents();
+    }
+    
+    private void ValidateComponents()
+    {
+        if (_titleText == null)
+            Debug.LogError($"[{nameof(MyDialog)}] 未找到 TitleText");
+        if (_confirmButton == null)
+            Debug.LogError($"[{nameof(MyDialog)}] 未找到 ConfirmButton");
+    }
+}
+```
+
+### 4.2 卡牌组件（Card）
+
+```csharp
+using UnityEngine;
+using UnityEngine.UI;
+using SimpleSolitaire.Utility;
+
+public class WordSolitaireCard : Card
+{
+    [Header("UI 组件（可选配置）")]
+    [SerializeField] private GameObject _frontContainer;
+    [SerializeField] private Image _frontNormalImage;
+    [SerializeField] private Text _wordText;
+    
+    protected void Awake()
+    {
+        // 自动查找背景图（从基类继承）
+        if (BackgroundImage == null)
+        {
+            BackgroundImage = this.Get<Image>("Background");
+        }
+        
+        // 自动查找 Front 相关组件
+        if (_frontContainer == null)
+        {
+            _frontContainer = this.Get<Transform>("Front")?.gameObject;
+            
+            if (_frontContainer != null)
+            {
+                _frontNormalImage = this.Get<Image>("Front/FrontNormal");
+                _wordText = this.Get<Text>("Front/Text");
+                
+                // 验证关键组件
+                if (_wordText == null)
+                {
+                    Debug.LogError($"[{nameof(WordSolitaireCard)}] 未找到 Text 组件");
+                }
+            }
+        }
+    }
+}
+```
+
+### 4.3 获取跨 GameObject 引用
+
+```csharp
+public class GameUI : MonoBehaviour
+{
+    private GameManager _gameManager;
+    private CardLogic _cardLogic;
+    
+    protected void Awake()
+    {
+        // 获取场景中的单例组件
+        _gameManager = this.FindInScene<GameManager>();
+        _cardLogic = this.FindInScene<CardLogic>();
+        
+        if (_gameManager == null)
+        {
+            Debug.LogError($"[{nameof(GameUI)}] 未找到 GameManager");
+        }
+    }
+}
+```
+
+---
+
+## 五、性能优化建议
+
+### 5.1 批量初始化
+
+对于大量需要查找组件的脚本，建议集中初始化：
+
+```csharp
+public class UIManager : MonoBehaviour
+{
+    [Header("所有弹窗引用（通过 ComponentFinder 自动获取）")]
+    private MainMenuUI _mainMenu;
+    private SettingsUI _settings;
+    private GameUI _gameUI;
+    
+    protected void Awake()
+    {
+        // 集中查找所有UI组件
+        _mainMenu = this.FindInScene<MainMenuUI>();
+        _settings = this.FindInScene<SettingsUI>();
+        _gameUI = this.FindInScene<GameUI>();
+        
+        // 验证所有组件
+        ValidateUIComponents();
+    }
+    
+    private void ValidateUIComponents()
+    {
+        var components = new Dictionary<string, Component>
+        {
+            { nameof(_mainMenu), _mainMenu },
+            { nameof(_settings), _settings },
+            { nameof(_gameUI), _gameUI }
+        };
+        
+        foreach (var kvp in components)
+        {
+            if (kvp.Value == null)
+            {
+                Debug.LogError($"[UIManager] 未找到 {kvp.Key} 组件");
+            }
+        }
+    }
+}
+```
+
+### 5.2 延迟查找（可选）
+
+对于不立即使用的组件，可以使用延迟查找：
+
+```csharp
+private Text _optionalText;
+private bool _isOptionalTextSearched = false;
+
+private Text OptionalText
+{
+    get
+    {
+        if (!_isOptionalTextSearched)
+        {
+            _optionalText = this.Get<Text>("Optional/Text");
+            _isOptionalTextSearched = true;
+        }
+        return _optionalText;
+    }
+}
+```
+
+---
+
+## 六、验证与检查
+
+### 6.1 代码审查检查项
+
+在代码审查时，检查以下内容：
+
+- [ ] 所有组件查找都使用 `ComponentFinder` 或其扩展方法
+- [ ] 查找操作只在 `Awake()` 或 `Start()` 中执行
+- [ ] 没有对 `useCache` 参数无故设置为 `false`
+- [ ] 所有查找结果都进行了空值检查
+- [ ] 节点路径命名符合规范（使用 `/` 分隔，PascalCase/camelCase）
+- [ ] 场景切换时调用了 `ComponentFinder.ClearAll()`
+
+### 6.2 自动化检查（可选）
+
+可以在 CI/CD 流程中添加代码检查：
+
+```bash
+# 检查是否使用了禁止的查找方式
+grep -r "transform\.Find.*GetComponent" Assets/Scripts --include="*.cs"
+grep -r "GetComponentInChildren<" Assets/Scripts --include="*.cs"
+
+# 确保所有组件类都引用了 ComponentFinder
+# 注意：需要排除 MonoBehaviour 基类和特殊场景
+grep -r "using SimpleSolitaire.Utility" Assets/Scripts --include="*.cs"
+```
+
+---
+
+## 七、相关文档
+
+- [ComponentFinder.cs 源码](../../../Assets/SimpleSolitaire/Resources/Scripts/Utility/ComponentFinder.cs)
+- [WordSolitaireCard.cs 使用示例](../../../Assets/SimpleSolitaire/Resources/Scripts/Controller/WordSolitaire/WordSolitaireCard.cs)
+- [WordSolitaire 场景节点说明.md](./WordSolitaire%20场景节点说明.md) - 附录 A.3
+
+---
+
+## 八、更新记录
+
+| 日期 | 版本 | 更新内容 | 作者 |
+|------|------|----------|------|
+| 2026-03-19 | v1.0 | 创建组件查找规范文档 | CodeBuddy |
+
+---
+
+*本文档为强制规范，所有新开发代码必须遵守。现有代码建议逐步重构以符合本规范。*

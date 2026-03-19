@@ -117,6 +117,17 @@ KlondikeCardLogic / SpiderCardLogic / FreecellCardLogic / ...
 - 私有字段使用 `[SerializeField]` 暴露给 Inspector
 - 序列化字段命名：驼峰命名 + 下划线前缀（如 `_cardLogic`）
 
+### 组件查找规范
+**必须使用 ComponentFinder 工具类进行所有组件查找操作**，禁止使用原生 `transform.Find().GetComponent()` 方式。
+
+**基本原则**:
+- 所有组件查找必须使用 `SimpleSolitaire.Utility.ComponentFinder`
+- 在 `MonoBehaviour` 内部使用扩展方法 `this.Get<T>(path)` 和 `this.Find<T>(name)`
+- 查找操作必须在 `Awake()` 或 `Start()` 中执行并缓存结果
+- 默认开启缓存机制，禁止无故关闭 `useCache` 参数
+
+**详细规范参见**: [.codebuddy/rules/component-finder-usage.mdc](./.codebuddy/rules/component-finder-usage.mdc)
+
 ### 代码注释
 **本项目使用中文进行开发交互**，所有代码注释、提交信息和文档都应使用中文。代码中的重要方法和复杂逻辑需要添加中文注释。
 

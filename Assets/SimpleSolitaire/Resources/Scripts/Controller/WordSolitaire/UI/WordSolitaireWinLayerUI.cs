@@ -1,5 +1,6 @@
 using SimpleSolitaire.Controller.UI;
 using SimpleSolitaire.Utility;
+using SimpleSolitaire.Controller.WordSolitaire;  // 添加命名空间引用
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -114,7 +115,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
             // 检查是否有下一关，控制下一关按钮显示
             if (_nextLevelButton != null)
             {
-                bool hasNextLevel = _levelDataManager?.GetNextLevel() != null;
+                bool hasNextLevel = _levelDataManager != null && _levelDataManager.IsLevelUnlocked(_levelDataManager.CurrentLevelId + 1);
                 _nextLevelButton.gameObject.SetActive(hasNextLevel);
             }
         }
@@ -136,10 +137,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
         /// </summary>
         private void OnClickNextLevel()
         {
-            UILayerManager.Instance?.Hide(LayerKey, onComplete: () =>
-            {
-                _gameManager?.StartNextLevel();
-            });
+            UILayerManager.Instance?.Hide(LayerKey);
+            _gameManager?.StartNextLevel();
         }
 
         /// <summary>
@@ -147,10 +146,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
         /// </summary>
         private void OnClickReplay()
         {
-            UILayerManager.Instance?.Hide(LayerKey, onComplete: () =>
-            {
-                _gameManager?.RestartGame();
-            });
+            UILayerManager.Instance?.Hide(LayerKey);
+            _gameManager?.RestartGame();
         }
 
         /// <summary>
@@ -158,10 +155,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
         /// </summary>
         private void OnClickMainMenu()
         {
-            UILayerManager.Instance?.Hide(LayerKey, onComplete: () =>
-            {
-                _gameManager?.ReturnToMainMenu();
-            });
+            UILayerManager.Instance?.Hide(LayerKey);
+            _gameManager?.ReturnToMainMenu();
         }
     }
 }

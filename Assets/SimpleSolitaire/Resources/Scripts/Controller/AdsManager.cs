@@ -29,6 +29,7 @@ namespace SimpleSolitaire.Controller
     public class AdsManager : MonoBehaviour
     {
         public Action<bool> BannerStateAction { get; set; }
+        public Action<RewardAdsState, RewardAdsType> RewardAction { get; set; }
 
         [SerializeField] private GameManager _gameManagerComponent;
         [SerializeField] private UndoPerformer _undoPerformerComponent;
@@ -238,6 +239,7 @@ namespace SimpleSolitaire.Controller
         {
             if (_lastShowingType == RewardAdsType.None) return;
             if (adType != (int)AdType.RewardVideo) return;
+            RewardAction?.Invoke(RewardAdsState.CLOSE, _lastShowingType);
             OnRewardedUser();
             InvokeAndClearCallbacks(success: true);
         }
@@ -249,6 +251,7 @@ namespace SimpleSolitaire.Controller
         {
             if (_lastShowingType == RewardAdsType.None) return;
             if (adType != (int)AdType.RewardVideo) return;
+            RewardAction?.Invoke(RewardAdsState.DID_NOT_LOADED, _lastShowingType);
             InvokeAndClearCallbacks(success: false);
         }
 

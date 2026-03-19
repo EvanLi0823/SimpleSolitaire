@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using SimpleSolitaire.Model.Enum;
 
 namespace SimpleSolitaire.Controller.WordSolitaire
 {
@@ -62,7 +63,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                     
                 case WordDeckType.Hand:
                     // 手牌区：只接受来自牌库的卡牌
-                    return card.Deck != null && card.Deck.Type == DeckType.DECK_TYPE_PACK;
+                    return card.Deck != null && card.Deck.Type == Model.Enum.DeckType.DECK_TYPE_PACK;
                     
                 case WordDeckType.Pack:
                     // 牌库：不接受外部卡牌
@@ -212,22 +213,22 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// <summary>
         /// 获取牌堆类型
         /// </summary>
-        public override DeckType Type
+        public override Model.Enum.DeckType Type
         {
             get
             {
                 switch (DeckType)
                 {
                     case WordDeckType.Pack:
-                        return DeckType.DECK_TYPE_PACK;
+                        return Model.Enum.DeckType.DECK_TYPE_PACK;
                     case WordDeckType.Hand:
-                        return DeckType.DECK_TYPE_WASTE;
+                        return Model.Enum.DeckType.DECK_TYPE_WASTE;
                     case WordDeckType.Column:
-                        return DeckType.DECK_TYPE_BOTTOM;
+                        return Model.Enum.DeckType.DECK_TYPE_BOTTOM;
                     case WordDeckType.CategorySlot:
-                        return DeckType.DECK_TYPE_ACE;
+                        return Model.Enum.DeckType.DECK_TYPE_ACE;
                     default:
-                        return DeckType.DECK_TYPE_BOTTOM;
+                        return Model.Enum.DeckType.DECK_TYPE_BOTTOM;
                 }
             }
         }

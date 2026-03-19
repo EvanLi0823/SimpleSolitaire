@@ -212,7 +212,7 @@ namespace SimpleSolitaire.Controller
             SetBackgroundImg(path);
         }
 
-        public string GetTypeName()
+        public virtual string GetTypeName()
         {
             switch (CardType)
             {

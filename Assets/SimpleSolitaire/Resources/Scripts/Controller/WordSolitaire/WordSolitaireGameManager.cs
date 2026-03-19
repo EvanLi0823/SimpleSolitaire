@@ -292,6 +292,31 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         }
 
         /// <summary>
+        /// 开始下一关（UI调用的别名）
+        /// </summary>
+        public void StartNextLevel()
+        {
+            GoToNextLevel();
+        }
+        
+        /// <summary>
+        /// 重新开始游戏（UI调用的别名）
+        /// </summary>
+        public void RestartGame()
+        {
+            RestartCurrentLevel();
+        }
+        
+        /// <summary>
+        /// 返回主菜单
+        /// </summary>
+        public void ReturnToMainMenu()
+        {
+            // TODO: 实现返回主菜单逻辑
+            Debug.Log("[WordSolitaireGameManager] 返回主菜单");
+        }
+        
+        /// <summary>
         /// 获取提示（消耗道具）
         /// </summary>
         public void UseHint()
@@ -312,10 +337,20 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// <summary>
         /// 使用万能牌（消耗道具）
         /// </summary>
-        public bool UseJokerCard()
+        public bool ActivateJoker()
         {
             // 检查是否有万能牌
             // 这里可以实现消耗金币或道具使用万能牌的逻辑
+            return false;
+        }
+        
+        /// <summary>
+        /// 使用撤销（消耗道具）
+        /// </summary>
+        public bool UseUndo()
+        {
+            // 检查是否有撤销次数
+            // 这里可以实现消耗金币或道具使用撤销的逻辑
             return false;
         }
     }

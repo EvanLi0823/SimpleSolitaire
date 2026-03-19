@@ -30,9 +30,14 @@ namespace SimpleSolitaire.Controller
         public int[] CardNumberArray = new int[52];
         public Deck[] BottomDeckArray = new Deck[7];
         public Deck[] AceDeckArray = new Deck[4];
-        public Deck[] AllDeckArray = new Deck[13];
+        public virtual Deck[] AllDeckArray { get; set; } = new Deck[13];
         public Deck WasteDeck;
-        public Deck PackDeck;
+        [SerializeField] private Deck _packDeck;
+        public Deck PackDeck
+        {
+            get => _packDeck;
+            set => _packDeck = value;
+        }
         public GameManager GameManagerComponent;
         public HintManager HintManagerComponent;
         public AutoCompleteManager AutoCompleteComponent;

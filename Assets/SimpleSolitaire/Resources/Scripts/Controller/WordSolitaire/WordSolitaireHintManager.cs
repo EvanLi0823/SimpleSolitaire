@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using SimpleSolitaire.Model;
 
 namespace SimpleSolitaire.Controller.WordSolitaire
 {
@@ -76,7 +77,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
 
             // 保存高亮卡牌引用
             _highlightedCard = hintCard;
-            _targetDeck = hints[CurrentHintIndex].TargetDeck;
+            _targetDeck = hints[CurrentHintIndex].DestinationDeck;
 
             // 动画移动
             while (t < 1)
@@ -316,7 +317,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             if (Hints.Count > 0)
             {
-                return Hints[0].TargetDeck;
+                return Hints[0].DestinationDeck;
             }
             return null;
         }

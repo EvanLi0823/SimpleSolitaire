@@ -99,11 +99,11 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
             
             EditorGUILayout.Space();
             
-            // 进度条
+            // 进度显示
             if (_isConverting)
             {
                 float progress = _totalSteps > 0 ? (float)_currentStep / _totalSteps : 0f;
-                EditorGUILayout.ProgressBar(progress, $"转换中... {_currentStep}/{_totalSteps}");
+                EditorGUILayout.LabelField($"转换进度: {_currentStep}/{_totalSteps} ({progress:P0})");
                 EditorGUILayout.Space();
             }
             
@@ -217,10 +217,20 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
                 EnsureDirectoryExists($"{_outputPath}/Words");
                 
                 _currentStep++;
-                var categories = LoadCategoriesFromExcel();
+                var categoriesData = LoadCategoriesFromExcel();
                 
                 _currentStep++;
-                ConvertWords(categories);
+                // 将List转换为Dictionary
+                var categoriesDict = new Dictionary<string, WordCategoryData>();
+                foreach (var catData in categoriesData)
+                {
+                    var category = Resources.Load<WordCategoryData>("Data/WordSolitaire/Categories/" + catData.CategoryId);
+                    if (category != null)
+                    {
+                        categoriesDict[catData.CategoryId] = category;
+                    }
+                }
+                ConvertWords(categoriesDict);
                 
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
@@ -253,10 +263,20 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
                 EnsureDirectoryExists($"{_outputPath}/Levels");
                 
                 _currentStep++;
-                var categories = LoadCategoriesFromExcel();
+                var categoriesData = LoadCategoriesFromExcel();
                 
                 _currentStep++;
-                ConvertLevels(categories);
+                // 将List转换为Dictionary
+                var categoriesDict = new Dictionary<string, WordCategoryData>();
+                foreach (var catData in categoriesData)
+                {
+                    var category = Resources.Load<WordCategoryData>("Data/WordSolitaire/Categories/" + catData.CategoryId);
+                    if (category != null)
+                    {
+                        categoriesDict[catData.CategoryId] = category;
+                    }
+                }
+                ConvertLevels(categoriesDict);
                 
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
@@ -612,9 +632,17 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
             
             using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
+                #if EXCEL_DATA_READER
                 using (var reader = ExcelDataReader.ExcelReaderFactory.CreateReader(stream))
                 {
-                    var result = ExcelDataReader.ExcelDataReaderExtensions.AsDataSet(reader);
+                    DataSet result = ExcelDataReader.ExcelDataReaderExtensions.AsDataSet(reader);
+                #else
+                using (StreamReader reader = null)
+                {
+                    DataSet result = null;
+                    Debug.LogError($"[ExcelToSO] ExcelDataReader库未安装，无法读取Excel文件。请安装ExcelDataReader包。");
+                    return null;
+                #endif
                     
                     if (result.Tables.Count > 0)
                     {

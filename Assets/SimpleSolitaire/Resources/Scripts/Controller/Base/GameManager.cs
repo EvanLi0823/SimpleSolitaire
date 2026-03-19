@@ -21,17 +21,17 @@ namespace SimpleSolitaire.Controller
         [SerializeField]
         protected CardLogic _cardLogic;
         [SerializeField]
-        private AdsManager _adsManagerComponent;
+        protected AdsManager _adsManagerComponent;
         [SerializeField]
-        private UndoPerformer _undoPerformComponent;
+        protected UndoPerformer _undoPerformComponent;
         [SerializeField]
-        private AutoCompleteManager _autoCompleteComponent;
+        protected AutoCompleteManager _autoCompleteComponent;
         [SerializeField]
         protected StatisticsController _statisticsComponent;
         [SerializeField]
-        private HowToPlayManager _howToPlayComponent;
+        protected HowToPlayManager _howToPlayComponent;
         [SerializeField]
-        private OrientationManager _orientationManager;
+        protected OrientationManager _orientationManager;
 
         [Header("UI 弹窗管理器")]
         [SerializeField]
@@ -43,6 +43,7 @@ namespace SimpleSolitaire.Controller
         public int TimeCount  => _timeCount;
         public int StepCount  => _stepCount;
         public int ScoreCount => _scoreCount;
+        public bool IsPause { get => _isPause; set => _isPause = value; }
 
         // ── ISettingsProvider 状态读取 ────────────────────────────────────────
         public bool SoundEnabled        => _soundEnable;
@@ -55,9 +56,10 @@ namespace SimpleSolitaire.Controller
         private readonly string _disappearTrigger = "Disappear";
         private readonly string _bestScoreKey     = "WinBestScore";
 
-        private int _timeCount;
-        private int _stepCount;
-        private int _scoreCount;
+        protected int _timeCount;
+        protected int _stepCount;
+        protected int _scoreCount;
+        protected bool _isPause;
         private Coroutine _timeCoroutine;
         private AudioController _audioController;
 
@@ -209,7 +211,7 @@ namespace SimpleSolitaire.Controller
         /// <summary>
         /// 初始化/恢复游戏的 HUD 状态，通过 GameEventBus 批量通知 GameHUDView。
         /// </summary>
-        private void InitMenuView(bool isLoadGame)
+        protected void InitMenuView(bool isLoadGame)
         {
             _timeCount  = isLoadGame ? _undoPerformComponent.StatesData.Time  : 0;
             _stepCount  = isLoadGame ? _undoPerformComponent.StatesData.Steps : 0;
@@ -234,7 +236,7 @@ namespace SimpleSolitaire.Controller
         /// <summary>
         /// Win game action.
         /// </summary>
-        public void HasWinGame()
+        public virtual void HasWinGame()
         {
             StopGameTimer();
             var score = _scoreCount + (_timeCount > 0 ? Public.SCORE_NUMBER / _timeCount : 0);
@@ -624,7 +626,7 @@ namespace SimpleSolitaire.Controller
             }
         }
 
-        private void StopGameTimer()
+        protected void StopGameTimer()
         {
             if (_timeCoroutine != null)
             {

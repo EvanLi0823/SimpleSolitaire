@@ -15,8 +15,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         public WordDataManager WordDataManager;
         public LevelDataManager LevelDataManager;
         
-        [Header("牌堆引用")]
-        public WordSolitaireDeck PackDeck;           // 牌库
+        // 牌堆引用
         public WordSolitaireDeck HandDeck;           // 手牌区
         public WordSolitaireDeck[] ColumnDecks;      // 列区牌堆
         public WordSolitaireDeck[] CategorySlots;    // 分类槽
@@ -61,6 +60,22 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         }
         
         /// <summary>
+        /// 根据关卡ID初始化关卡（撤销系统使用）
+        /// </summary>
+        /// <param name="levelId">关卡ID</param>
+        public void InitializeLevelById(int levelId)
+        {
+            if (LevelDataManager == null) return;
+            
+            LevelDataManager.LoadLevel(levelId);
+            LevelData levelData = LevelDataManager.CurrentLevel;
+            if (levelData != null)
+            {
+                InitializeLevel(levelData);
+            }
+        }
+        
+        /// <summary>
         /// 加载关卡词汇
         /// </summary>
         private void LoadLevelWords()
@@ -71,7 +86,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             
             foreach (string categoryId in _currentLevel.CategoryIds)
             {
-                WordCategoryData category = WordDataManager.GetCategory(categoryId);
+                WordCategoryData category = WordDataManager.GetCategoryById(categoryId);
                 if (category == null) continue;
                 
                 foreach (WordItem word in category.Words)
@@ -163,6 +178,31 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             }
         }
         
+        /// <summary>
+        /// 初始化牌堆数组（基类要求）
+        /// </summary>
+        protected override void InitDeckCards()
+        {
+            // 初始化AceDeckArray（分类槽）
+            AceDeckArray = new Deck[CategorySlots.Length];
+            for (int i = 0; i < CategorySlots.Length; i++)
+            {
+                AceDeckArray[i] = CategorySlots[i];
+            }
+            
+            // 初始化BottomDeckArray（列区）
+            BottomDeckArray = new Deck[ColumnDecks.Length];
+            for (int i = 0; i < ColumnDecks.Length; i++)
+            {
+                BottomDeckArray[i] = ColumnDecks[i];
+            }
+            
+            // 设置WasteDeck为HandDeck
+            WasteDeck = HandDeck;
+            
+            // 牌库已在字段中初始化
+        }
+        
         #endregion
         
         #region 游戏逻辑
@@ -199,7 +239,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             float bestOverlap = 0f;
             
             // 检查所有牌堆
-            CheckDeckOverlap(card, PackDeck, ref bestDeck, ref bestOverlap);
+            CheckDeckOverlap(card, PackDeck as WordSolitaireDeck, ref bestDeck, ref bestOverlap);
             CheckDeckOverlap(card, HandDeck, ref bestDeck, ref bestOverlap);
             
             if (ColumnDecks != null)
@@ -284,7 +324,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             // 播放音效
             if (AudioCtrl != null)
             {
-                AudioCtrl.Play(AudioController.AudioType.CardMove);
+                AudioCtrl.Play(AudioController.AudioType.Move);
             }
             
             // 检查匹配
@@ -318,12 +358,13 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             // 检查分类槽是否完成
             if (slot.IsComplete)
             {
-                GameEventBus.PublishCategoryCompleted(card.CategoryId);
+                // TODO: 添加分类完成事件
+                // GameEventBus.PublishCategoryCompleted(card.CategoryId);
                 
                 // 播放完成音效
                 if (AudioCtrl != null)
                 {
-                    AudioCtrl.Play(AudioController.AudioType.CardToAce);
+                    AudioCtrl.Play(AudioController.AudioType.MoveToAce);
                 }
             }
             
@@ -336,7 +377,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         public void TryAutoMatchCard(WordSolitaireCard card)
         {
-            if (card.CardType == CardType.Joker) return;
+            if (card.WordCardType == global::SimpleSolitaire.Controller.WordSolitaire.CardType.Joker) return;
             
             // 查找对应的分类槽
             if (CategorySlots != null)
@@ -408,7 +449,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 // 播放音效
                 if (AudioCtrl != null)
                 {
-                    AudioCtrl.Play(AudioController.AudioType.CardMove);
+                    AudioCtrl.Play(AudioController.AudioType.Move);
                 }
             }
             

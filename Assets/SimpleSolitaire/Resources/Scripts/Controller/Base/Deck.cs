@@ -13,7 +13,7 @@ namespace SimpleSolitaire.Controller
     {
         public CardLogic CardLogicComponent;
         public int DeckNum = 0;
-        public DeckType Type = 0;
+        public virtual DeckType Type { get; set; } = 0;
         public List<Card> CardsArray = new List<Card>();
 
         public bool HasCards => CardsArray.Count > 0;

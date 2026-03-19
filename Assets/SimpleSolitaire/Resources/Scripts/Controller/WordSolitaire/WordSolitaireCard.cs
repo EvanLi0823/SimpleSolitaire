@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using SimpleSolitaire.Utility;
 
 namespace SimpleSolitaire.Controller.WordSolitaire
 {
@@ -13,18 +13,64 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         [Header("词语卡牌属性")]
         public string WordId;                  // 单词ID
         public string CategoryId;              // 所属类别ID
-        public CardType CardType;              // 卡牌类型（Text/Image/Joker）
+        public CardType WordCardType;          // 卡牌类型（Text/Image/Joker）
         public Sprite WordImageSprite;         // 单词图片（仅图片卡使用）
         
         [Header("UI组件")]
-        public TextMeshProUGUI WordText;       // 单词文本显示
-        public Image WordImage;                // 单词图片显示组件
-        public GameObject JokerIcon;           // 万能卡标识
+        [SerializeField] private GameObject _frontContainer;          // 正面容器（Front）
+        [SerializeField] private Image _frontNormalImage;             // 普通卡正面图片
+        [SerializeField] private Image _frontCategoriesImage;         // 分类卡正面图片
+        [SerializeField] private Image _frontJokerImage;              // 万能卡正面图片（注意：预制体中拼写为Jocker）
+        [SerializeField] private Text _wordText;                      // 单词文本显示
+        [SerializeField] private Image _wordImage;                    // 单词图片显示组件
+        [SerializeField] private GameObject _jokerIcon;               // 万能卡标识
+        [SerializeField] private Image _categoryIcon;                 // 分类图标（仅分类卡使用）
+        [SerializeField] private Text _categoryCountText;             // 分类计数文本（显示如"1/5"）
+        
+        // 公开访问属性
+        public Text WordText => _wordText;
+        public Image WordImage => _wordImage;
+        public GameObject JokerIcon => _jokerIcon;
         
         /// <summary>
         /// 是否是万能卡
         /// </summary>
-        public bool IsJoker => CardType == CardType.Joker;
+        public bool IsJoker => WordCardType == global::SimpleSolitaire.Controller.WordSolitaire.CardType.Joker;
+          
+        protected void Awake()
+        {
+            // 使用ComponentFinder自动查找BackgroundImage（如果未配置）
+            if (BackgroundImage == null)
+            {
+                BackgroundImage = this.Get<Image>("Background");
+            }
+            
+            // 使用ComponentFinder自动查找Front相关子节点（如果未配置）
+            if (_frontContainer == null)
+            {
+                _frontContainer = this.Get<Transform>("Front")?.gameObject;
+                
+                if (_frontContainer != null)
+                {
+                    // 查找Front下的各个子节点
+                    _frontNormalImage = this.Get<Image>("Front/FrontNormal");
+                    _frontCategoriesImage = this.Get<Image>("Front/FrontCategories");
+                    _frontJokerImage = this.Get<Image>("Front/FrontJocker");
+                    _wordText = this.Get<Text>("Front/Text");
+                    _jokerIcon = this.Get<Transform>("Front/FrontJocker")?.gameObject;
+                    _categoryIcon = this.Get<Image>("Front/Icon");
+                    
+                    // 查找分类计数文本（在FrontCategories下）
+                    _categoryCountText = this.Get<Text>("Front/FrontCategories/CategoriesCount");
+                    
+                    // wordImage 默认指向 FrontNormal，实际使用时根据卡牌类型动态设置
+                    if (_frontNormalImage != null)
+                    {
+                        _wordImage = _frontNormalImage;
+                    }
+                }
+            }
+        }
         
         /// <summary>
         /// 初始化卡牌
@@ -45,7 +91,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             
             WordId = wordItem.WordId;
             CategoryId = wordItem.CategoryId;
-            CardType = wordItem.CardType;
+            WordCardType = wordItem.CardType;
             WordImageSprite = wordItem.Image;
             
             UpdateCardVisual();
@@ -61,15 +107,15 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             if (WordImage != null) WordImage.gameObject.SetActive(false);
             if (JokerIcon != null) JokerIcon.SetActive(false);
             
-            switch (CardType)
+            switch (WordCardType)
             {
-                case CardType.Text:
+                case global::SimpleSolitaire.Controller.WordSolitaire.CardType.Text:
                     ShowTextCard();
                     break;
-                case CardType.Image:
+                case global::SimpleSolitaire.Controller.WordSolitaire.CardType.Image:
                     ShowImageCard();
                     break;
-                case CardType.Joker:
+                case global::SimpleSolitaire.Controller.WordSolitaire.CardType.Joker:
                     ShowJokerCard();
                     break;
             }

@@ -1,6 +1,8 @@
 using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
+using SimpleSolitaire.Controller;
+using SimpleSolitaire.Model.Config;
 
 namespace SimpleSolitaire.Controller.WordSolitaire
 {
@@ -125,7 +127,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             // 恢复关卡
             if (Logic != null && _statesData.LevelId > 0)
             {
-                Logic.LoadLevel(_statesData.LevelId);
+                (Logic as WordSolitaireCardLogic)?.InitializeLevelById(_statesData.LevelId);
             }
 
             // 恢复卡牌编号

@@ -1,5 +1,6 @@
 using SimpleSolitaire.Controller.UI;
 using SimpleSolitaire.Utility;
+using SimpleSolitaire.Controller.WordSolitaire;
 using UnityEngine.UI;
 
 namespace SimpleSolitaire.Controller.WordSolitaire.UI
@@ -81,10 +82,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
         /// </summary>
         private void OnClickRestart()
         {
-            UILayerManager.Instance?.Hide(LayerKey, onComplete: () =>
-            {
-                _gameManager?.RestartGame();
-            });
+            UILayerManager.Instance?.Hide(LayerKey);
+            _gameManager?.RestartGame();
         }
 
         /// <summary>
@@ -92,10 +91,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
         /// </summary>
         private void OnClickMainMenu()
         {
-            UILayerManager.Instance?.Hide(LayerKey, onComplete: () =>
-            {
-                _gameManager?.ReturnToMainMenu();
-            });
+            UILayerManager.Instance?.Hide(LayerKey);
+            _gameManager?.ReturnToMainMenu();
         }
 
         /// <summary>

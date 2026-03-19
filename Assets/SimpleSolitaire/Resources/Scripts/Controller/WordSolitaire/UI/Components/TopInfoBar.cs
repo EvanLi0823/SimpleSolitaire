@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using SimpleSolitaire.Controller.UI;
 
 namespace SimpleSolitaire.Controller.WordSolitaire.UI
 {
@@ -43,7 +44,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire.UI
         {
             // 查找依赖
             _mediator = FindObjectOfType<GameLayerMediator>();
-            _levelDataManager = LevelDataManager.Instance;
+            _levelDataManager = FindObjectOfType<LevelDataManager>();
 
             // 绑定按钮事件
             if (_settingsButton != null)
