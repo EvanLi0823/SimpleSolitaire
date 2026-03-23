@@ -59,10 +59,72 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             _currentLevel = levelData;
             _isGameOver = false;
             
-            if (_currentLevel != null)
+            if (_currentLevel == null)
             {
-                LoadLevelWords();
+                Debug.LogError("[WordSolitaireCardLogic] 无法初始化关卡: levelData 为 null");
+                return;
             }
+            
+            // 验证关卡数据
+            if (!ValidateLevelData(_currentLevel))
+            {
+                Debug.LogError($"[WordSolitaireCardLogic] 关卡 {_currentLevel.LevelId} 数据验证失败，无法初始化游戏");
+                _currentLevel = null;
+                return;
+            }
+            
+            LoadLevelWords();
+        }
+        
+        /// <summary>
+        /// 验证关卡数据的完整性
+        /// </summary>
+        private bool ValidateLevelData(LevelData level)
+        {
+            bool isValid = true;
+            
+            if (level.LevelId <= 0)
+            {
+                Debug.LogWarning($"[WordSolitaireCardLogic] LevelId 必须大于0，当前值: {level.LevelId}");
+                isValid = false;
+            }
+            
+            if (level.CardCount <= 0)
+            {
+                Debug.LogWarning($"[WordSolitaireCardLogic] CardCount 必须大于0，当前值: {level.CardCount}");
+                isValid = false;
+            }
+            
+            if (level.ColumnCount <= 0)
+            {
+                Debug.LogWarning($"[WordSolitaireCardLogic] ColumnCount 必须大于0，当前值: {level.ColumnCount}，使用默认值4");
+                level.ColumnCount = 4;
+            }
+            
+            if (level.SlotCount <= 0)
+            {
+                Debug.LogWarning($"[WordSolitaireCardLogic] SlotCount 必须大于0，当前值: {level.SlotCount}，使用默认值3");
+                level.SlotCount = 3;
+            }
+            
+            if (level.CategoryIds == null || level.CategoryIds.Length == 0)
+            {
+                Debug.LogError($"[WordSolitaireCardLogic] CategoryIds 不能为空");
+                isValid = false;
+            }
+            
+            // 验证InitialCardsPerColumn是否已配置
+            if (level.InitialCardsPerColumn == null)
+            {
+                Debug.LogError($"[WordSolitaireCardLogic] InitialCardsPerColumn 未配置，无法分发卡牌到列区");
+                isValid = false;
+            }
+            else if (level.InitialCardsPerColumn.Length != level.ColumnCount)
+            {
+                Debug.LogWarning($"[WordSolitaireCardLogic] InitialCardsPerColumn 长度 ({level.InitialCardsPerColumn.Length}) 与 ColumnCount ({level.ColumnCount}) 不匹配，可能导致部分列区无卡牌");
+            }
+            
+            return isValid;
         }
         
         /// <summary>
@@ -86,19 +148,53 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private void LoadLevelWords()
         {
-            _currentLevelWords = new List<WordItem>();
+            if (_currentLevel == null)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] 无法加载词库: _currentLevel 为 null");
+                _currentLevelWords = new List<WordItem>();
+                return;
+            }
             
-            if (WordDataManager == null || _currentLevel == null) return;
+            if (_currentLevel.CategoryIds == null || _currentLevel.CategoryIds.Length == 0)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] 无法加载词库: CategoryIds 为空");
+                _currentLevelWords = new List<WordItem>();
+                return;
+            }
+            
+            if (WordDataManager == null)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] WordDataManager 未配置");
+                _currentLevelWords = new List<WordItem>();
+                return;
+            }
+            
+            _currentLevelWords = new List<WordItem>();
+            int loadedCategories = 0;
+            int loadedWords = 0;
             
             foreach (int categoryId in _currentLevel.CategoryIds)
             {
                 WordCategoryData category = WordDataManager.GetCategoryById(categoryId);
-                if (category == null) continue;
+                if (category == null)
+                {
+                    Debug.LogWarning($"[WordSolitaireCardLogic] 分类ID {categoryId} 不存在，跳过");
+                    continue;
+                }
                 
+                loadedCategories++;
                 foreach (WordItem word in category.Words)
                 {
                     _currentLevelWords.Add(word);
+                    loadedWords++;
                 }
+            }
+            
+            Debug.Log($"[WordSolitaireCardLogic] 词库加载完成: {loadedCategories}/{_currentLevel.CategoryIds.Length} 个分类, {loadedWords} 个单词");
+            
+            if (_currentLevelWords.Count == 0)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] 词库为空，无法初始化卡牌");
             }
         }
         
@@ -112,6 +208,9 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             // 动态生成分类槽和列区Deck
             GenerateDecks();
             
+            // 初始化牌堆数组（重要：确保基类能正确访问分类槽和列区）
+            InitDeckCards();
+            
             if (_currentLevel != null)
             {
                 InitializeCards();
@@ -123,11 +222,29 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private void InitializeCards()
         {
-            if (WordCardPrefab == null) return;
-            if (_currentLevel == null) return;
+            if (WordCardPrefab == null)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] WordCardPrefab 未配置，无法初始化卡牌");
+                return;
+            }
+            
+            if (_currentLevel == null)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] _currentLevel 为 null，无法初始化卡牌");
+                return;
+            }
+            
+            if (_currentLevelWords == null || _currentLevelWords.Count == 0)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] _currentLevelWords 为空，无法初始化卡牌");
+                return;
+            }
+            
+            Debug.Log($"[WordSolitaireCardLogic] 开始初始化卡牌，共 {_currentLevelWords.Count} 个单词卡");
             
             // 1. 创建所有单词卡
             List<WordSolitaireCard> allCards = new List<WordSolitaireCard>();
+            int failedCards = 0;
             
             foreach (WordItem wordItem in _currentLevelWords)
             {
@@ -136,7 +253,14 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 {
                     allCards.Add(card);
                 }
+                else
+                {
+                    Debug.LogError($"[WordSolitaireCardLogic] 创建卡牌失败: {wordItem?.WordId}");
+                    failedCards++;
+                }
             }
+            
+            Debug.Log($"[WordSolitaireCardLogic] 成功创建 {allCards.Count} 张卡牌，失败 {failedCards} 张");
             
             // 2. 为每个类别创建分类卡
             HashSet<int> categoryIds = new HashSet<int>();
@@ -169,11 +293,22 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             
             // 4. 分发卡牌到列区（根据 InitialCardsPerColumn 配置）
             int cardIndex = 0;
+            int totalDistributed = 0;
+            
             if (ColumnDecks != null && _currentLevel.InitialCardsPerColumn != null)
             {
                 for (int col = 0; col < ColumnDecks.Length && col < _currentLevel.InitialCardsPerColumn.Length; col++)
                 {
                     int cardsToDeal = _currentLevel.InitialCardsPerColumn[col];
+                    
+                    if (cardsToDeal <= 0)
+                    {
+                        Debug.LogWarning($"[WordSolitaireCardLogic] 列区 {col} 的初始卡牌数量为0，跳过");
+                        continue;
+                    }
+                    
+                    Debug.Log($"[WordSolitaireCardLogic] 开始分发 {cardsToDeal} 张卡牌到列区 {col}");
+                    
                     for (int i = 0; i < cardsToDeal && cardIndex < allCards.Count; i++)
                     {
                         WordSolitaireCard card = allCards[cardIndex];
@@ -181,8 +316,15 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                         bool shouldFaceUp = (i == cardsToDeal - 1);
                         ColumnDecks[col].PushCard(card, shouldFaceUp, 0);
                         cardIndex++;
+                        totalDistributed++;
                     }
                 }
+                
+                Debug.Log($"[WordSolitaireCardLogic] 已分发 {totalDistributed} 张卡牌到列区，剩余 {allCards.Count - cardIndex} 张待处理");
+            }
+            else if (ColumnDecks != null && _currentLevel.InitialCardsPerColumn == null)
+            {
+                Debug.LogWarning("[WordSolitaireCardLogic] InitialCardsPerColumn 未配置，所有列区将保持空状态");
             }
             
             // 5. 剩余卡牌放入牌库
@@ -207,15 +349,30 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private WordSolitaireCard CreateWordCard(WordItem wordItem)
         {
-            if (WordCardPrefab == null) return null;
+            if (WordCardPrefab == null)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] WordCardPrefab 未配置，无法创建卡牌");
+                return null;
+            }
             
             GameObject cardObj = Instantiate(WordCardPrefab, transform);
             WordSolitaireCard card = cardObj.GetComponent<WordSolitaireCard>();
+            
+            // 如果预制体中没有WordSolitaireCard组件，则动态添加
+            if (card == null)
+            {
+                card = cardObj.AddComponent<WordSolitaireCard>();
+                Debug.LogWarning("[WordSolitaireCardLogic] WordCardPrefab 中没有 WordSolitaireCard 组件，已动态添加");
+            }
             
             if (card != null)
             {
                 card.InitWithWordItem(wordItem);
                 card.CardLogicComponent = this;
+            }
+            else
+            {
+                Debug.LogError($"[WordSolitaireCardLogic] 创建WordSolitaireCard组件失败: {wordItem?.WordId}");
             }
             
             return card;
@@ -717,7 +874,19 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private void GenerateDecks()
         {
-            if (_currentLevel == null || DeckPrefab == null) return;
+            if (_currentLevel == null)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] 无法生成Deck: _currentLevel 为 null");
+                return;
+            }
+            
+            if (DeckPrefab == null)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] 无法生成Deck: DeckPrefab 未配置");
+                return;
+            }
+            
+            Debug.Log($"[WordSolitaireCardLogic] 开始生成Deck，关卡 {_currentLevel.LevelId}");
             
             // 清理现有Deck
             ClearExistingDecks();
@@ -730,6 +899,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             
             // 应用自适应布局
             ApplyAdaptiveLayout();
+            
+            Debug.Log($"[WordSolitaireCardLogic] Deck生成完成: {CategorySlots?.Length ?? 0} 个分类槽，{ColumnDecks?.Length ?? 0} 个列区");
         }
         
         /// <summary>
@@ -770,13 +941,22 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             if (CategorySlotsContainer == null || _currentLevel.CategoryIds == null) return;
             
-            int slotCount = _currentLevel.CategoryIds.Length;
-            CategorySlots = new WordSolitaireDeck[slotCount];
+            List<WordSolitaireDeck> validSlots = new List<WordSolitaireDeck>();
             
-            for (int i = 0; i < slotCount; i++)
+            for (int i = 0; i < _currentLevel.CategoryIds.Length; i++)
             {
+                int categoryId = _currentLevel.CategoryIds[i];
+                
+                // 验证分类ID是否存在于词库中
+                WordCategoryData category = WordDataManager.GetCategoryById(categoryId);
+                if (category == null)
+                {
+                    Debug.LogError($"[WordSolitaireCardLogic] 分类ID {categoryId} 不存在，跳过创建分类槽");
+                    continue;
+                }
+                
                 GameObject deckObj = Instantiate(DeckPrefab, CategorySlotsContainer);
-                deckObj.name = $"CategorySlot_{i}";
+                deckObj.name = $"CategorySlot_{category.CategoryName}";
                 
                 WordSolitaireDeck deck = deckObj.GetComponent<WordSolitaireDeck>();
                 if (deck == null)
@@ -786,12 +966,26 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 
                 // 配置分类槽属性
                 deck.DeckType = WordDeckType.CategorySlot;
-                deck.CategoryId = _currentLevel.CategoryIds[i];
+                deck.CategoryId = categoryId;
                 deck.TargetCardCount = _currentLevel.CategorySlotSize > 0 ? _currentLevel.CategorySlotSize : 5; // 默认5张
                 deck.DeckNum = i;
                 deck.CardLogicComponent = this;
                 
-                CategorySlots[i] = deck;
+                validSlots.Add(deck);
+                Debug.Log($"[WordSolitaireCardLogic] 成功创建分类槽: {category.CategoryName} (ID={categoryId}, 目标={deck.TargetCardCount})");
+            }
+            
+            // 更新数组
+            CategorySlots = validSlots.ToArray();
+            
+            // 验证至少有一个有效的分类槽
+            if (CategorySlots.Length == 0)
+            {
+                Debug.LogError("[WordSolitaireCardLogic] 没有有效的分类槽，无法初始化游戏");
+            }
+            else
+            {
+                Debug.Log($"[WordSolitaireCardLogic] 成功创建 {CategorySlots.Length} 个分类槽");
             }
         }
         

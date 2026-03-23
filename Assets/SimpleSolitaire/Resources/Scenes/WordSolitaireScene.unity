@@ -782,6 +782,7 @@ Transform:
   - {fileID: 2027867917}
   - {fileID: 1440228320}
   - {fileID: 1322995218}
+  - {fileID: 859766520}
   - {fileID: 1001750419}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1315,8 +1316,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  WasteDeck: {fileID: 0}
-  _packDeck: {fileID: 0}
+  WasteDeck: {fileID: 154159198}
+  _packDeck: {fileID: 244256013}
   GameManagerComponent: {fileID: 411655885}
   HintManagerComponent: {fileID: 0}
   AutoCompleteComponent: {fileID: 0}
@@ -1327,15 +1328,17 @@ MonoBehaviour:
   DeckSizeComponent: {fileID: 0}
   DeckSpacesContainer: {fileID: 0}
   ParticleStars: {fileID: 0}
-  WordDataManager: {fileID: 0}
-  LevelDataManager: {fileID: 0}
-  CategorySlotsContainer: {fileID: 0}
-  ColumnDecksContainer: {fileID: 0}
-  HandDeck: {fileID: 0}
+  WordDataManager: {fileID: 859766521}
+  LevelDataManager: {fileID: 1322995219}
+  CategorySlotsContainer: {fileID: 2070607818}
+  ColumnDecksContainer: {fileID: 240886806}
+  HandDeck: {fileID: 154159198}
   ColumnDecks: []
   CategorySlots: []
-  DeckPrefab: {fileID: 0}
-  WordCardPrefab: {fileID: 0}
+  DeckPrefab: {fileID: 8863488988429366084, guid: e2a61d08593fd472893bcf657d1c2516,
+    type: 3}
+  WordCardPrefab: {fileID: 4905342515255177201, guid: 9ed0da5eda66245a5a3feaab8fe1b617,
+    type: 3}
 --- !u!1 &411655881
 GameObject:
   m_ObjectHideFlags: 0
@@ -1406,7 +1409,7 @@ MonoBehaviour:
   UseLoadLastGameOption: 0
   _coinManager: {fileID: 1440228321}
   _levelDataManager: {fileID: 1322995219}
-  _gameConfig: {fileID: 0}
+  _gameConfig: {fileID: 11400000, guid: ef008c72405b14654b61da4068a5fd9d, type: 2}
 --- !u!1 &418428740
 GameObject:
   m_ObjectHideFlags: 0
@@ -2121,6 +2124,51 @@ MonoBehaviour:
   _hintIcon: {fileID: 0}
   _undoIcon: {fileID: 0}
   _jokerIcon: {fileID: 0}
+--- !u!1 &859766519
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 859766520}
+  - component: {fileID: 859766521}
+  m_Layer: 0
+  m_Name: WordDataManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &859766520
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 859766519}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 215433478}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &859766521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 859766519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50ed95b0a70374cfe84a8f6f325fab74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _categoriesPath: Data/WordSolitaire/ScriptableObjects/Categories
 --- !u!1 &865279857
 GameObject:
   m_ObjectHideFlags: 0

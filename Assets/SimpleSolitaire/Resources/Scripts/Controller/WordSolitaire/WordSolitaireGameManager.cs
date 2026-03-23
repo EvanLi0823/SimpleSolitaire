@@ -57,6 +57,10 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             base.InitializeGame();
             
+            // 预加载词库数据（优化：提前加载避免首次使用时的延迟）
+            var wordDataManager = FindObjectOfType<WordDataManager>();
+            wordDataManager?.PreloadAllCategories();
+            
             // 初始化金币管理器
             if (_coinManager == null)
             {
@@ -74,14 +78,25 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         protected override void InitCardLogic()
         {
             // 加载当前关卡
-            if (_levelDataManager != null)
+            if (_levelDataManager == null)
             {
-                _currentLevel = _levelDataManager.GetCurrentLevel();
-                _remainingSteps = _currentLevel != null ? _currentLevel.MaxMoves : 999;
+                Debug.LogError("[WordSolitaireGameManager] _levelDataManager 未配置，无法加载关卡数据");
+                _currentLevel = null;
+                _remainingSteps = 999;
             }
             else
             {
-                _remainingSteps = 999;
+                _currentLevel = _levelDataManager.GetCurrentLevel();
+                if (_currentLevel == null)
+                {
+                    Debug.LogError("[WordSolitaireGameManager] 无法加载当前关卡数据");
+                    _remainingSteps = 999;
+                }
+                else
+                {
+                    _remainingSteps = _currentLevel.MaxMoves;
+                    Debug.Log($"[WordSolitaireGameManager] 关卡 {_currentLevel.LevelId} 加载完成，最大步数: {_remainingSteps}");
+                }
             }
             
             // 初始化卡牌逻辑

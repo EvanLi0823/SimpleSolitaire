@@ -393,6 +393,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 338981480412542784}
+  - component: {fileID: 7046022355836185049}
   m_Layer: 5
   m_Name: WordCard
   m_TagString: Untagged
@@ -400,13 +401,14 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &338981480412542784
-RectTransform:
+--- !u!4 &338981480412542784
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4905342515255177201}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -416,11 +418,43 @@ RectTransform:
   - {fileID: 2779039024393423066}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 163, y: 218}
-  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7046022355836185049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4905342515255177201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 343d3e616e195427b9be002227a292a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CardType: 0
+  CardNumber: 0
+  Number: 0
+  CardStatus: 0
+  CardColor: 0
+  IsDraggable: 0
+  IndexZ: 0
+  CardLogicComponent: {fileID: 0}
+  BackgroundImage: {fileID: 0}
+  CardRect: {fileID: 0}
+  CardChildRect: {fileID: 0}
+  WordId: 
+  CategoryId: 0
+  WordCardType: 0
+  WordImageSprite: {fileID: 0}
+  _frontContainer: {fileID: 0}
+  _frontNormalImage: {fileID: 0}
+  _frontCategoriesImage: {fileID: 0}
+  _frontJokerImage: {fileID: 0}
+  _wordText: {fileID: 0}
+  _wordImage: {fileID: 0}
+  _jokerIcon: {fileID: 0}
+  _categoryIcon: {fileID: 0}
+  _categoryCountText: {fileID: 0}
+  _categoryNameText: {fileID: 0}
 --- !u!1 &5453599695217648373
 GameObject:
   m_ObjectHideFlags: 0
