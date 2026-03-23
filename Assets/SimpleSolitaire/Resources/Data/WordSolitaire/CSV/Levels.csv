@@ -1,0 +1,6 @@
+levelId,cardCount,maxMoves,columnCount,slotCount,categoryIds,isTutorial,isShowResultAd,isShowMatchAd,initialCardsPerColumn
+1,15,999,3,3,"1001|1002|1004",true,false,false,"4|5|6"
+2,20,999,3,4,"1001|1002|1004|1005",true,false,false,"5|5|6"
+3,25,150,4,5,"1001|1002|1004|1005|1006",false,true,false,"5|5|6|6"
+4,30,145,4,5,"1001|1002|1004|1005|1006|1007",false,true,true,"5|6|6|7"
+5,30,120,4,6,"1001|1002|1004|1005|1006|1007|1008",false,true,true,"5|6|7|7"

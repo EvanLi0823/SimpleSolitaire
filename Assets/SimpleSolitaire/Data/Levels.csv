@@ -1,3 +1,0 @@
-ID,CategoriesNum,ColumnNum,Pattern,Category ID,Moves,Reward,IsShowStartAd,IsShowMatchAd,IsShowResultAd
-关卡ID,分类槽数量,列区数量,初始牌型,分类卡ID,步数9999无限步数,奖励金币,是否游戏开始广告,是否消除插屏广告,是否游戏结算广告
-1,4,4,2|3|4|5,1|2|3|4|5|6|7|8,150,50,,,

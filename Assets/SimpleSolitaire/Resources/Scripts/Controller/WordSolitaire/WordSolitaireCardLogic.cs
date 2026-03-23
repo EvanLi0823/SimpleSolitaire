@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SimpleSolitaire.Controller.WordSolitaire
 {
@@ -15,12 +16,17 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         public WordDataManager WordDataManager;
         public LevelDataManager LevelDataManager;
         
+        // 牌堆容器引用（用于动态生成Deck）
+        public Transform CategorySlotsContainer;    // 分类槽容器
+        public Transform ColumnDecksContainer;      // 列区容器
+        
         // 牌堆引用
         public WordSolitaireDeck HandDeck;           // 手牌区
-        public WordSolitaireDeck[] ColumnDecks;      // 列区牌堆
-        public WordSolitaireDeck[] CategorySlots;    // 分类槽
+        public WordSolitaireDeck[] ColumnDecks;      // 列区牌堆（动态生成）
+        public WordSolitaireDeck[] CategorySlots;    // 分类槽（动态生成）
         
         [Header("预制体")]
+        public GameObject DeckPrefab;                // Deck预制体（CategorySlot.prefab）
         public GameObject WordCardPrefab;            // 词语卡牌预制体
         
         // 当前关卡数据
@@ -84,7 +90,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             
             if (WordDataManager == null || _currentLevel == null) return;
             
-            foreach (string categoryId in _currentLevel.CategoryIds)
+            foreach (int categoryId in _currentLevel.CategoryIds)
             {
                 WordCategoryData category = WordDataManager.GetCategoryById(categoryId);
                 if (category == null) continue;
@@ -103,6 +109,9 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             base.InitCardLogic();
             
+            // 动态生成分类槽和列区Deck
+            GenerateDecks();
+            
             if (_currentLevel != null)
             {
                 InitializeCards();
@@ -115,8 +124,9 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         private void InitializeCards()
         {
             if (WordCardPrefab == null) return;
+            if (_currentLevel == null) return;
             
-            // 创建所有卡牌
+            // 1. 创建所有单词卡
             List<WordSolitaireCard> allCards = new List<WordSolitaireCard>();
             
             foreach (WordItem wordItem in _currentLevelWords)
@@ -128,17 +138,68 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 }
             }
             
-            // 洗牌
-            ShuffleCards(allCards);
-            
-            // 分发卡牌到牌库
-            foreach (WordSolitaireCard card in allCards)
+            // 2. 为每个类别创建分类卡
+            HashSet<int> categoryIds = new HashSet<int>();
+            foreach (WordItem word in _currentLevelWords)
             {
-                PackDeck?.PushCard(card, false, 0);
+                if (word != null)
+                {
+                    categoryIds.Add(word.CategoryId);
+                }
             }
             
-            // 更新牌库显示
+            foreach (int categoryId in categoryIds)
+            {
+                WordCategoryData category = WordDataManager.GetCategoryById(categoryId);
+                if (category != null)
+                {
+                    WordItem categoryItem = category.CreateCategoryCardItem();
+                    WordSolitaireCard categoryCard = CreateWordCard(categoryItem);
+                    if (categoryCard != null)
+                    {
+                        // categoryCard的WordCardType已通过InitWithWordItem设置为CategoryCard
+                        // IsCategoryCard属性会自动根据WordCardType计算，无需手动赋值
+                        allCards.Add(categoryCard);
+                    }
+                }
+            }
+            
+            // 3. 洗牌
+            ShuffleCards(allCards);
+            
+            // 4. 分发卡牌到列区（根据 InitialCardsPerColumn 配置）
+            int cardIndex = 0;
+            if (ColumnDecks != null && _currentLevel.InitialCardsPerColumn != null)
+            {
+                for (int col = 0; col < ColumnDecks.Length && col < _currentLevel.InitialCardsPerColumn.Length; col++)
+                {
+                    int cardsToDeal = _currentLevel.InitialCardsPerColumn[col];
+                    for (int i = 0; i < cardsToDeal && cardIndex < allCards.Count; i++)
+                    {
+                        WordSolitaireCard card = allCards[cardIndex];
+                        // 列区最下方（最后放置的）卡牌翻开
+                        bool shouldFaceUp = (i == cardsToDeal - 1);
+                        ColumnDecks[col].PushCard(card, shouldFaceUp, 0);
+                        cardIndex++;
+                    }
+                }
+            }
+            
+            // 5. 剩余卡牌放入牌库
+            for (int i = cardIndex; i < allCards.Count; i++)
+            {
+                PackDeck?.PushCard(allCards[i], false, 0);
+            }
+            
+            // 6. 更新所有牌堆显示
             PackDeck?.UpdateCardsPosition(false);
+            if (ColumnDecks != null)
+            {
+                foreach (var deck in ColumnDecks)
+                {
+                    deck?.UpdateCardsPosition(false);
+                }
+            }
         }
         
         /// <summary>
@@ -222,6 +283,9 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             {
                 // 执行放置
                 await PlaceCardToDeck(wordCard, targetDeck);
+                
+                // 消耗步数
+                ConsumeStep();
             }
             else
             {
@@ -310,15 +374,48 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             WordSolitaireDeck originalDeck = card.Deck as WordSolitaireDeck;
             
-            // 从原牌堆移除
+            // 如果是分类卡，收集其上方的同词组卡牌一起移动
+            List<WordSolitaireCard> cardsToMove = new List<WordSolitaireCard>();
+            cardsToMove.Add(card);
+            
+            if (card.IsCategoryCard && originalDeck != null)
+            {
+                // 找到分类卡在牌堆中的索引
+                int cardIndex = originalDeck.CardsArray.IndexOf(card);
+                if (cardIndex >= 0 && cardIndex < originalDeck.CardsArray.Count - 1)
+                {
+                    // 收集上方所有同词组的卡牌
+                    for (int i = cardIndex + 1; i < originalDeck.CardsArray.Count; i++)
+                    {
+                        WordSolitaireCard aboveCard = originalDeck.CardsArray[i] as WordSolitaireCard;
+                        if (aboveCard != null && aboveCard.CategoryId == card.CategoryId)
+                        {
+                            cardsToMove.Add(aboveCard);
+                        }
+                        else
+                        {
+                            // 遇到不同词组的卡牌，停止收集
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // 从原牌堆移除所有要移动的卡牌
             if (originalDeck != null)
             {
-                originalDeck.RemoveCard(card);
+                foreach (var c in cardsToMove)
+                {
+                    originalDeck.RemoveCard(c);
+                }
                 originalDeck.UpdateCardsPosition(false);
             }
             
             // 添加到目标牌堆
-            targetDeck.PushCard(card, true, 1);
+            foreach (var c in cardsToMove)
+            {
+                targetDeck.PushCard(c, true, 1);
+            }
             targetDeck.UpdateCardsPosition(false);
             
             // 播放音效
@@ -327,7 +424,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 AudioCtrl.Play(AudioController.AudioType.Move);
             }
             
-            // 检查匹配
+            // 检查匹配（只检查主卡）
             if (targetDeck.DeckType == WordDeckType.CategorySlot)
             {
                 OnCardMatchedToCategorySlot(card, targetDeck);
@@ -434,35 +531,107 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         
         /// <summary>
         /// 点击牌库（基类要求）
+        /// 借鉴 Klondike 机制：牌库有牌时发牌，牌库无牌时恢复库存
+        /// 注意：恢复库存也需要消耗步数（根据产品文档）
         /// </summary>
         public override void OnClickPack()
         {
-            if (PackDeck == null || !PackDeck.HasCards) return;
+            // 牌库和手牌区都为空时，无法操作
+            if (PackDeck == null || HandDeck == null) return;
             
-            // 从牌库发一张牌到手牌区
-            Card card = PackDeck.Pop();
-            if (card != null)
+            if (PackDeck.HasCards)
             {
-                HandDeck?.PushCard(card, true, 1);
-                HandDeck?.UpdateCardsPosition(false);
-                
-                // 播放音效
-                if (AudioCtrl != null)
+                // 牌库有牌：发一张牌到手牌区
+                Card card = PackDeck.Pop();
+                if (card != null)
                 {
-                    AudioCtrl.Play(AudioController.AudioType.Move);
+                    HandDeck?.PushCard(card, true, 1);
+                    HandDeck?.UpdateCardsPosition(false);
+                    PackDeck?.UpdateCardsPosition(false);
+                    
+                    // 播放音效
+                    if (AudioCtrl != null)
+                    {
+                        AudioCtrl.Play(AudioController.AudioType.MoveToWaste);
+                    }
+                    
+                    // 消耗步数
+                    ConsumeStep();
+                    
+                    // 检查牌库是否耗尽
+                    if (!PackDeck.HasCards)
+                    {
+                        GameEventBus.PublishPackEmpty();
+                    }
                 }
             }
-            
-            // 检查牌库是否耗尽
-            if (!PackDeck.HasCards)
+            else if (HandDeck.HasCards)
             {
-                GameEventBus.PublishPackEmpty();
+                // 牌库无牌但有手牌：恢复库存（将手牌放回牌库），消耗步数
+                RestorePackCards();
+            }
+            else
+            {
+                // 牌库和手牌区都空：播放错误音效
+                if (AudioCtrl != null)
+                {
+                    AudioCtrl.Play(AudioController.AudioType.Error);
+                }
             }
         }
         
         #endregion
         
         #region 辅助方法
+        
+        /// <summary>
+        /// 消耗步数
+        /// </summary>
+        private void ConsumeStep()
+        {
+            if (GameManagerComponent is WordSolitaireGameManager wordManager)
+            {
+                wordManager.OnStepConsumed();
+            }
+        }
+        
+        /// <summary>
+        /// 恢复库存 - 将手牌按初始顺序放回牌库
+        /// 注意：此操作消耗1步（根据产品文档）
+        /// </summary>
+        public void RestorePackCards()
+        {
+            if (HandDeck == null || PackDeck == null) return;
+            if (!HandDeck.HasCards) return;
+            
+            // 获取手牌区所有卡牌（从旧到新，保持顺序）
+            List<Card> handCards = new List<Card>(HandDeck.CardsArray);
+            
+            // 从手牌区移除所有卡牌
+            foreach (var card in handCards)
+            {
+                HandDeck.RemoveCard(card);
+            }
+            
+            // 按初始顺序放回牌库（最旧的先放，在底部）
+            foreach (var card in handCards)
+            {
+                PackDeck.PushCard(card, false, 0);  // 放入牌库时显示卡背
+            }
+            
+            // 更新显示
+            HandDeck.UpdateCardsPosition(false);
+            PackDeck.UpdateCardsPosition(false);
+            
+            // 播放恢复音效
+            if (AudioCtrl != null)
+            {
+                AudioCtrl.Play(AudioController.AudioType.MoveToPack);
+            }
+            
+            // 消耗步数（根据产品文档要求）
+            ConsumeStep();
+        }
         
         /// <summary>
         /// 显示提示
@@ -522,6 +691,261 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         public override void OnNewGameStart()
         {
             _isGameOver = false;
+        }
+        
+        #endregion
+        
+        #region 动态生成Deck
+        
+        /// <summary>
+        /// 动态生成分类槽和列区Deck
+        /// </summary>
+        private void GenerateDecks()
+        {
+            if (_currentLevel == null || DeckPrefab == null) return;
+            
+            // 清理现有Deck
+            ClearExistingDecks();
+            
+            // 生成分类槽
+            GenerateCategorySlots();
+            
+            // 生成列区Deck
+            GenerateColumnDecks();
+            
+            // 应用自适应布局
+            ApplyAdaptiveLayout();
+        }
+        
+        /// <summary>
+        /// 清理现有Deck
+        /// </summary>
+        private void ClearExistingDecks()
+        {
+            if (CategorySlots != null)
+            {
+                foreach (var slot in CategorySlots)
+                {
+                    if (slot != null && slot.gameObject != null)
+                    {
+                        Destroy(slot.gameObject);
+                    }
+                }
+            }
+            
+            if (ColumnDecks != null)
+            {
+                foreach (var deck in ColumnDecks)
+                {
+                    if (deck != null && deck.gameObject != null)
+                    {
+                        Destroy(deck.gameObject);
+                    }
+                }
+            }
+            
+            CategorySlots = null;
+            ColumnDecks = null;
+        }
+        
+        /// <summary>
+        /// 动态生成分类槽
+        /// </summary>
+        private void GenerateCategorySlots()
+        {
+            if (CategorySlotsContainer == null || _currentLevel.CategoryIds == null) return;
+            
+            int slotCount = _currentLevel.CategoryIds.Length;
+            CategorySlots = new WordSolitaireDeck[slotCount];
+            
+            for (int i = 0; i < slotCount; i++)
+            {
+                GameObject deckObj = Instantiate(DeckPrefab, CategorySlotsContainer);
+                deckObj.name = $"CategorySlot_{i}";
+                
+                WordSolitaireDeck deck = deckObj.GetComponent<WordSolitaireDeck>();
+                if (deck == null)
+                {
+                    deck = deckObj.AddComponent<WordSolitaireDeck>();
+                }
+                
+                // 配置分类槽属性
+                deck.DeckType = WordDeckType.CategorySlot;
+                deck.CategoryId = _currentLevel.CategoryIds[i];
+                deck.TargetCardCount = _currentLevel.CategorySlotSize > 0 ? _currentLevel.CategorySlotSize : 5; // 默认5张
+                deck.DeckNum = i;
+                deck.CardLogicComponent = this;
+                
+                CategorySlots[i] = deck;
+            }
+        }
+        
+        /// <summary>
+        /// 动态生成列区Deck
+        /// </summary>
+        private void GenerateColumnDecks()
+        {
+            if (ColumnDecksContainer == null) return;
+            
+            int columnCount = _currentLevel.ColumnCount;
+            if (columnCount <= 0) columnCount = 4; // 默认4列
+            
+            ColumnDecks = new WordSolitaireDeck[columnCount];
+            
+            for (int i = 0; i < columnCount; i++)
+            {
+                GameObject deckObj = Instantiate(DeckPrefab, ColumnDecksContainer);
+                deckObj.name = $"ColumnDeck_{i}";
+                
+                WordSolitaireDeck deck = deckObj.GetComponent<WordSolitaireDeck>();
+                if (deck == null)
+                {
+                    deck = deckObj.AddComponent<WordSolitaireDeck>();
+                }
+                
+                // 配置列区属性
+                deck.DeckType = WordDeckType.Column;
+                deck.ColumnIndex = i;
+                deck.DeckNum = i;
+                deck.CardLogicComponent = this;
+                
+                ColumnDecks[i] = deck;
+            }
+        }
+        
+        /// <summary>
+        /// 应用自适应布局（根据数量调整间距和缩放）
+        /// 设计规格：
+        /// - 容器宽度：720像素
+        /// - 左右各留10像素间距
+        /// - 卡牌初始尺寸：163x218像素
+        /// </summary>
+        private void ApplyAdaptiveLayout()
+        {
+            // 设计常量
+            const float CONTAINER_WIDTH = 720f;
+            const float MARGIN = 10f;
+            const float CARD_WIDTH = 163f;
+            const float CARD_HEIGHT = 218f;
+            const float BASE_SPACING = 15f;
+            
+            // ============ 分类槽自适应布局 ============
+            if (CategorySlotsContainer != null && CategorySlots != null && CategorySlots.Length > 0)
+            {
+                int slotCount = CategorySlots.Length;
+                
+                // 计算可用宽度
+                float availableWidth = CONTAINER_WIDTH - 2 * MARGIN;
+                
+                // 计算每个分类槽的理想宽度（包括间距）
+                float totalSpacingWidth = BASE_SPACING * (slotCount - 1);
+                float availableForCards = availableWidth - totalSpacingWidth;
+                float idealCardWidth = availableForCards / slotCount;
+                
+                // 计算缩放比例
+                float scale = idealCardWidth / CARD_WIDTH;
+                
+                // 限制缩放范围（0.5 ~ 1.0）
+                scale = Mathf.Clamp(scale, 0.5f, 1.0f);
+                
+                // 如果4个或更少，使用固定比例1.0
+                if (slotCount <= 4)
+                {
+                    scale = 1.0f;
+                }
+                
+                // 计算实际间距（居中对齐）
+                float scaledCardWidth = CARD_WIDTH * scale;
+                float scaledSpacing = (availableWidth - scaledCardWidth * slotCount) / (slotCount - 1);
+                scaledSpacing = Mathf.Max(scaledSpacing, 2f); // 最小间距2像素
+                
+                // 配置HorizontalLayoutGroup
+                var hlg = CategorySlotsContainer.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>();
+                if (hlg != null)
+                {
+                    hlg.spacing = scaledSpacing;
+                    hlg.padding = new RectOffset((int)MARGIN, (int)MARGIN, 0, 0);
+                    hlg.childAlignment = UnityEngine.TextAnchor.MiddleCenter;
+                    hlg.childForceExpandWidth = false;
+                    hlg.childForceExpandHeight = false;
+                }
+                
+                // 应用缩放
+                foreach (var slot in CategorySlots)
+                {
+                    if (slot != null)
+                    {
+                        slot.transform.localScale = Vector3.one * scale;
+                    }
+                }
+                
+                Debug.Log($"[ApplyAdaptiveLayout] 分类槽: 数量={slotCount}, 缩放={scale:F2}, 间距={scaledSpacing:F1}");
+            }
+            
+            // ============ 列区自适应布局 ============
+            if (ColumnDecksContainer != null && ColumnDecks != null && ColumnDecks.Length > 0)
+            {
+                int columnCount = ColumnDecks.Length;
+                
+                // 计算可用宽度
+                float availableWidth = CONTAINER_WIDTH - 2 * MARGIN;
+                
+                // 计算网格布局参数
+                // 4列或更少：单行，4列
+                // 5-8列：2行，每行4列
+                // 9-12列：3行，每行4列
+                int maxColumnsPerRow = 4;
+                int columnsPerRow = Mathf.Min(columnCount, maxColumnsPerRow);
+                int rows = Mathf.CeilToInt((float)columnCount / columnsPerRow);
+                
+                // 计算每列可用宽度（包括间距）
+                float totalSpacingWidth = BASE_SPACING * (columnsPerRow - 1);
+                float availableForColumns = availableWidth - totalSpacingWidth;
+                float idealColumnWidth = availableForColumns / columnsPerRow;
+                
+                // 计算缩放比例
+                float scale = idealColumnWidth / CARD_WIDTH;
+                
+                // 限制缩放范围（0.4 ~ 1.0，列区可以更小）
+                scale = Mathf.Clamp(scale, 0.4f, 1.0f);
+                
+                // 如果4列或更少，使用固定比例1.0
+                if (columnCount <= 4)
+                {
+                    scale = 1.0f;
+                    columnsPerRow = 4;
+                }
+                
+                // 计算实际间距
+                float scaledCardWidth = CARD_WIDTH * scale;
+                float scaledSpacing = (availableWidth - scaledCardWidth * columnsPerRow) / (columnsPerRow - 1);
+                scaledSpacing = Mathf.Max(scaledSpacing, 2f);
+                
+                // 配置GridLayoutGroup
+                var glg = ColumnDecksContainer.GetComponent<UnityEngine.UI.GridLayoutGroup>();
+                if (glg != null)
+                {
+                    glg.constraint = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
+                    glg.constraintCount = columnsPerRow;
+                    glg.cellSize = new Vector2(CARD_WIDTH * scale, CARD_HEIGHT * scale);
+                    glg.spacing = new Vector2(scaledSpacing, 20f); // 垂直间距20像素
+                    glg.padding = new RectOffset((int)MARGIN, (int)MARGIN, 0, 0);
+                    glg.childAlignment = UnityEngine.TextAnchor.UpperCenter;
+                    glg.startCorner = UnityEngine.UI.GridLayoutGroup.Corner.UpperLeft;
+                    glg.startAxis = UnityEngine.UI.GridLayoutGroup.Axis.Horizontal;
+                }
+                
+                // 应用缩放
+                foreach (var deck in ColumnDecks)
+                {
+                    if (deck != null)
+                    {
+                        deck.transform.localScale = Vector3.one * scale;
+                    }
+                }
+                
+                Debug.Log($"[ApplyAdaptiveLayout] 列区: 数量={columnCount}, 列/行={columnsPerRow}/{rows}, 缩放={scale:F2}, 间距={scaledSpacing:F1}");
+            }
         }
         
         #endregion

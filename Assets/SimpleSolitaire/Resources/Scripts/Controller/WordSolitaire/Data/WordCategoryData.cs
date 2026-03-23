@@ -10,10 +10,13 @@ namespace SimpleSolitaire.Controller.WordSolitaire
     public class WordCategoryData : ScriptableObject
     {
         [Header("基础信息")]
-        [Tooltip("词组唯一ID，作为主键使用")]
-        public string CategoryId;
+        [Tooltip("词组唯一ID（数字），作为主键使用")]
+        public int CategoryId;
         
-        [Tooltip("词组名称的多语言Key，格式: category_{categoryId}")]
+        [Tooltip("词组英文名称，用于显示")]
+        public string CategoryName;
+        
+        [Tooltip("词组名称的多语言Key，格式: category_{CategoryId}")]
         public string NameKey;
         
         [Header("视觉")]
@@ -32,9 +35,9 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             bool isValid = true;
             
-            if (string.IsNullOrEmpty(CategoryId))
+            if (CategoryId <= 0)
             {
-                Debug.LogError($"[WordCategoryData] CategoryId不能为空");
+                Debug.LogError($"[WordCategoryData] CategoryId必须大于0");
                 isValid = false;
             }
             
@@ -88,6 +91,22 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         public int GetWordCount()
         {
             return Words != null ? Words.Count : 0;
+        }
+
+        /// <summary>
+        /// 生成分类卡数据 - 用于创建代表该类别的分类卡
+        /// </summary>
+        /// <returns>分类卡单词项</returns>
+        public WordItem CreateCategoryCardItem()
+        {
+            return new WordItem
+            {
+                WordId = $"CATEGORY_{CategoryId}",
+                CategoryId = CategoryId,
+                CardType = CardType.CategoryCard,
+                TextKey = NameKey,
+                Image = Icon
+            };
         }
     }
 }

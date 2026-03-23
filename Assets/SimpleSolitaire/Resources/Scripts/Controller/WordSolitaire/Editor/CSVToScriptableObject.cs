@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -9,15 +8,16 @@ using UnityEngine;
 namespace SimpleSolitaire.Controller.WordSolitaire.Editor
 {
     /// <summary>
-    /// Excel转ScriptableObject编辑器工具
-    /// 将Words.xlsx和Levels.xlsx转换为ScriptableObject资源
+    /// CSV转ScriptableObject编辑器工具
+    /// 将CSV文件转换为ScriptableObject资源
     /// </summary>
-    public class ExcelToScriptableObject : EditorWindow
+    public class CSVToScriptableObject : EditorWindow
     {
-        // Excel文件路径
-        private string _wordsExcelPath = "Assets/SimpleSolitaire/Data/Words.xlsx";
-        private string _levelsExcelPath = "Assets/SimpleSolitaire/Data/Levels.xlsx";
-        private string _categoriesExcelPath = "Assets/SimpleSolitaire/Data/Categories.xlsx";
+        // CSV文件路径
+        private string _wordsCSVPath = "Assets/SimpleSolitaire/Resources/Data/WordSolitaire/CSV/Words.csv";
+        private string _levelsCSVPath = "Assets/SimpleSolitaire/Resources/Data/WordSolitaire/CSV/Levels.csv";
+        private string _categoriesCSVPath = "Assets/SimpleSolitaire/Resources/Data/WordSolitaire/CSV/Categories.csv";
+        private string _localizationCSVPath = "Assets/SimpleSolitaire/Resources/Data/WordSolitaire/CSV/Localization.csv";
         
         // 输出路径
         private string _outputPath = "Assets/SimpleSolitaire/Resources/Data/WordSolitaire/ScriptableObjects";
@@ -34,22 +34,23 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         private int _totalSteps = 0;
         private int _currentStep = 0;
         
-        [MenuItem("Tools/WordSolitaire/Convert Excel to SO")]
+        [MenuItem("Tools/WordSolitaire/Convert CSV to SO")]
         public static void ShowWindow()
         {
-            GetWindow<ExcelToScriptableObject>("Excel to SO Converter");
+            GetWindow<CSVToScriptableObject>("CSV to SO Converter");
         }
         
         private void OnGUI()
         {
-            GUILayout.Label("WordSolitaire Excel 转换工具", EditorStyles.boldLabel);
+            GUILayout.Label("WordSolitaire CSV 转换工具", EditorStyles.boldLabel);
             EditorGUILayout.Space();
             
             // 文件路径设置
-            EditorGUILayout.LabelField("Excel文件路径", EditorStyles.boldLabel);
-            _wordsExcelPath = EditorGUILayout.TextField("Words.xlsx", _wordsExcelPath);
-            _levelsExcelPath = EditorGUILayout.TextField("Levels.xlsx", _levelsExcelPath);
-            _categoriesExcelPath = EditorGUILayout.TextField("Categories.xlsx", _categoriesExcelPath);
+            EditorGUILayout.LabelField("CSV文件路径", EditorStyles.boldLabel);
+            _categoriesCSVPath = EditorGUILayout.TextField("Categories.csv", _categoriesCSVPath);
+            _wordsCSVPath = EditorGUILayout.TextField("Words.csv", _wordsCSVPath);
+            _levelsCSVPath = EditorGUILayout.TextField("Levels.csv", _levelsCSVPath);
+            _localizationCSVPath = EditorGUILayout.TextField("Localization.csv", _localizationCSVPath);
             
             EditorGUILayout.Space();
             
@@ -156,7 +157,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         }
         
         /// <summary>
-        /// 转换所有Excel文件
+        /// 转换所有CSV文件
         /// </summary>
         private void ConvertAll()
         {
@@ -210,31 +211,22 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
             _isConverting = true;
             _currentStep = 0;
             _totalSteps = 2;
-            
+
             try
             {
                 EnsureDirectoryExists(_outputPath);
                 EnsureDirectoryExists($"{_outputPath}/Words");
-                
+
                 _currentStep++;
-                var categoriesData = LoadCategoriesFromExcel();
-                
+                // 先转换类别，获取Dictionary
+                var categoryDict = ConvertCategories();
+
                 _currentStep++;
-                // 将List转换为Dictionary
-                var categoriesDict = new Dictionary<int, WordCategoryData>();
-                foreach (var catData in categoriesData)
-                {
-                    var category = Resources.Load<WordCategoryData>("Data/WordSolitaire/Categories/" + catData.CategoryId);
-                    if (category != null)
-                    {
-                        categoriesDict[catData.CategoryId] = category;
-                    }
-                }
-                ConvertWords(categoriesDict);
-                
+                ConvertWords(categoryDict);
+
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                
+
                 LogSuccess("词汇数据转换完成！");
             }
             catch (Exception e)
@@ -256,31 +248,22 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
             _isConverting = true;
             _currentStep = 0;
             _totalSteps = 2;
-            
+
             try
             {
                 EnsureDirectoryExists(_outputPath);
                 EnsureDirectoryExists($"{_outputPath}/Levels");
-                
+
                 _currentStep++;
-                var categoriesData = LoadCategoriesFromExcel();
-                
+                // 先转换类别，获取Dictionary
+                var categoryDict = ConvertCategories();
+
                 _currentStep++;
-                // 将List转换为Dictionary
-                var categoriesDict = new Dictionary<int, WordCategoryData>();
-                foreach (var catData in categoriesData)
-                {
-                    var category = Resources.Load<WordCategoryData>("Data/WordSolitaire/Categories/" + catData.CategoryId);
-                    if (category != null)
-                    {
-                        categoriesDict[catData.CategoryId] = category;
-                    }
-                }
-                ConvertLevels(categoriesDict);
-                
+                ConvertLevels(categoryDict);
+
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                
+
                 LogSuccess("关卡数据转换完成！");
             }
             catch (Exception e)
@@ -304,30 +287,36 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
             try
             {
                 // 验证文件存在性
-                if (!File.Exists(_wordsExcelPath))
+                if (!File.Exists(_wordsCSVPath))
                 {
-                    LogError($"Words.xlsx文件不存在: {_wordsExcelPath}");
+                    LogError($"Words.csv文件不存在: {_wordsCSVPath}");
                     return;
                 }
                 
-                if (!File.Exists(_levelsExcelPath))
+                if (!File.Exists(_levelsCSVPath))
                 {
-                    LogError($"Levels.xlsx文件不存在: {_levelsExcelPath}");
+                    LogError($"Levels.csv文件不存在: {_levelsCSVPath}");
                     return;
                 }
                 
-                if (!File.Exists(_categoriesExcelPath))
+                if (!File.Exists(_categoriesCSVPath))
                 {
-                    LogError($"Categories.xlsx文件不存在: {_categoriesExcelPath}");
+                    LogError($"Categories.csv文件不存在: {_categoriesCSVPath}");
                     return;
                 }
                 
-                LogSuccess("所有Excel文件存在性验证通过");
+                if (!File.Exists(_localizationCSVPath))
+                {
+                    LogError($"Localization.csv文件不存在: {_localizationCSVPath}");
+                    return;
+                }
+                
+                LogSuccess("所有CSV文件存在性验证通过");
                 
                 // 加载并验证数据
-                var categories = LoadCategoriesFromExcel();
-                var words = LoadWordsFromExcel();
-                var levels = LoadLevelsFromExcel();
+                var categories = LoadCategoriesFromCSV();
+                var words = LoadWordsFromCSV();
+                var levels = LoadLevelsFromCSV();
                 
                 // 验证关联关系
                 ValidateRelationships(categories, words, levels);
@@ -349,7 +338,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         {
             LogInfo("开始转换类别数据...");
             
-            var categories = LoadCategoriesFromExcel();
+            var categories = LoadCategoriesFromCSV();
             var categoryDict = new Dictionary<int, WordCategoryData>();
             
             foreach (var category in categories)
@@ -374,44 +363,53 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         }
         
         /// <summary>
-        /// 从Excel加载类别数据
+        /// 从CSV加载类别数据
+        /// CSV格式: categoryId,categoryName,nameKey
         /// </summary>
-        private List<CategoryExcelData> LoadCategoriesFromExcel()
+        private List<CategoryCSVData> LoadCategoriesFromCSV()
         {
-            var list = new List<CategoryExcelData>();
+            var list = new List<CategoryCSVData>();
             
-            if (!File.Exists(_categoriesExcelPath))
+            if (!File.Exists(_categoriesCSVPath))
             {
-                LogError($"Categories.xlsx文件不存在: {_categoriesExcelPath}");
+                LogError($"Categories.csv文件不存在: {_categoriesCSVPath}");
                 return list;
             }
             
             try
             {
-                DataTable table = ReadExcel(_categoriesExcelPath, "Categories");
-                
-                for (int i = 1; i < table.Rows.Count; i++) // 跳过表头
+                string[] lines = File.ReadAllLines(_categoriesCSVPath);
+                if (lines.Length < 2)
                 {
-                    var row = table.Rows[i];
-                    
-                    var data = new CategoryExcelData
-                    {
-                        CategoryId = GetCellInt(row, 0),
-                        CategoryName = GetCellString(row, 1),
-                        NameKey = GetCellString(row, 2)
-                    };
-                    
-                    if (data.CategoryId > 0)
-                    {
-                        list.Add(data);
-                    }
+                    LogWarning("Categories.csv文件为空或格式不正确");
+                    return list;
                 }
                 
-                LogSuccess($"从Excel加载了{list.Count}个类别");
+                // 解析表头
+                string[] headers = ParseCSVLine(lines[0]);
+                
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(lines[i])) continue;
+                    
+                    string[] values = ParseCSVLine(lines[i]);
+                    if (values.Length < 3) continue;
+                    
+                    var data = new CategoryCSVData
+                    {
+                        CategoryId = int.Parse(values[0]),
+                        CategoryName = values[1],
+                        NameKey = values[2]
+                    };
+                    
+                    list.Add(data);
+                }
+                
+                LogSuccess($"从CSV加载了{list.Count}个类别");
             }
             catch (Exception e)
             {
-                LogError($"加载Categories.xlsx失败: {e.Message}");
+                LogError($"加载Categories.csv失败: {e.Message}");
             }
             
             return list;
@@ -428,7 +426,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         {
             LogInfo("开始转换词汇数据...");
             
-            var words = LoadWordsFromExcel();
+            var words = LoadWordsFromCSV();
             int successCount = 0;
             int failCount = 0;
             
@@ -449,7 +447,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
                     CategoryId = word.CategoryId,
                     TextKey = word.TextKey,
                     CardType = ParseCardType(word.CardType),
-                    Image = LoadSprite(word.ImagePath)
+                    Image = null
                 };
                 
                 // 添加到对应类别
@@ -463,46 +461,52 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         }
         
         /// <summary>
-        /// 从Excel加载词汇数据
+        /// 从CSV加载词汇数据
+        /// CSV格式: wordId,categoryId,textKey,cardType,imagePath
         /// </summary>
-        private List<WordExcelData> LoadWordsFromExcel()
+        private List<WordCSVData> LoadWordsFromCSV()
         {
-            var list = new List<WordExcelData>();
+            var list = new List<WordCSVData>();
             
-            if (!File.Exists(_wordsExcelPath))
+            if (!File.Exists(_wordsCSVPath))
             {
-                LogError($"Words.xlsx文件不存在: {_wordsExcelPath}");
+                LogError($"Words.csv文件不存在: {_wordsCSVPath}");
                 return list;
             }
             
             try
             {
-                DataTable table = ReadExcel(_wordsExcelPath, "Words");
-                
-                for (int i = 1; i < table.Rows.Count; i++)
+                string[] lines = File.ReadAllLines(_wordsCSVPath);
+                if (lines.Length < 2)
                 {
-                    var row = table.Rows[i];
-                    
-                    var data = new WordExcelData
-                    {
-                        WordId = GetCellString(row, 0),
-                        CategoryId = GetCellInt(row, 1),
-                        TextKey = GetCellString(row, 2),
-                        CardType = GetCellString(row, 3),
-                        ImagePath = GetCellString(row, 4)
-                    };
-                    
-                    if (!string.IsNullOrEmpty(data.WordId))
-                    {
-                        list.Add(data);
-                    }
+                    LogWarning("Words.csv文件为空或格式不正确");
+                    return list;
                 }
                 
-                LogSuccess($"从Excel加载了{list.Count}个词汇");
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(lines[i])) continue;
+                    
+                    string[] values = ParseCSVLine(lines[i]);
+                    if (values.Length < 4) continue;
+                    
+                    var data = new WordCSVData
+                    {
+                        WordId = values[0],
+                        CategoryId = int.Parse(values[1]),
+                        TextKey = values[2],
+                        CardType = values[3],
+                        ImagePath = values.Length > 4 ? values[4] : ""
+                    };
+                    
+                    list.Add(data);
+                }
+                
+                LogSuccess($"从CSV加载了{list.Count}个词汇");
             }
             catch (Exception e)
             {
-                LogError($"加载Words.xlsx失败: {e.Message}");
+                LogError($"加载Words.csv失败: {e.Message}");
             }
             
             return list;
@@ -519,7 +523,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         {
             LogInfo("开始转换关卡数据...");
             
-            var levels = LoadLevelsFromExcel();
+            var levels = LoadLevelsFromCSV();
             int successCount = 0;
             int failCount = 0;
             
@@ -567,61 +571,67 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         }
         
         /// <summary>
-        /// 从Excel加载关卡数据
+        /// 从CSV加载关卡数据
+        /// CSV格式: levelId,cardCount,maxMoves,columnCount,slotCount,categoryIds,isTutorial,isShowResultAd,isShowMatchAd,initialCardsPerColumn
         /// </summary>
-        private List<LevelExcelData> LoadLevelsFromExcel()
+        private List<LevelCSVData> LoadLevelsFromCSV()
         {
-            var list = new List<LevelExcelData>();
+            var list = new List<LevelCSVData>();
             
-            if (!File.Exists(_levelsExcelPath))
+            if (!File.Exists(_levelsCSVPath))
             {
-                LogError($"Levels.xlsx文件不存在: {_levelsExcelPath}");
+                LogError($"Levels.csv文件不存在: {_levelsCSVPath}");
                 return list;
             }
             
             try
             {
-                DataTable table = ReadExcel(_levelsExcelPath, "Levels");
-                
-                for (int i = 1; i < table.Rows.Count; i++)
+                string[] lines = File.ReadAllLines(_levelsCSVPath);
+                if (lines.Length < 2)
                 {
-                    var row = table.Rows[i];
+                    LogWarning("Levels.csv文件为空或格式不正确");
+                    return list;
+                }
+                
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(lines[i])) continue;
                     
-                    // 解析categoryIds
-                    string[] categoryIdStrings = GetCellString(row, 5)?.Split('|') ?? new string[0];
+                    string[] values = ParseCSVLine(lines[i]);
+                    if (values.Length < 9) continue;
+                    
+                    // 解析categoryIds (格式: 1001|1002|1004)
+                    string[] categoryIdStrings = values[5].Split('|');
                     int[] categoryIds = new int[categoryIdStrings.Length];
                     for (int j = 0; j < categoryIdStrings.Length; j++)
                     {
                         int.TryParse(categoryIdStrings[j], out categoryIds[j]);
                     }
                     
-                    // 解析initialCardsPerColumn
+                    // 解析initialCardsPerColumn (格式: 4|5|6)
                     int[] initialCardsPerColumn = null;
-                    if (table.Columns.Count > 9)
+                    if (values.Length > 9 && !string.IsNullOrEmpty(values[9]))
                     {
-                        string[] cardsStrings = GetCellString(row, 9)?.Split('|') ?? new string[0];
-                        if (cardsStrings.Length > 0 && !string.IsNullOrEmpty(cardsStrings[0]))
+                        string[] cardsStrings = values[9].Split('|');
+                        initialCardsPerColumn = new int[cardsStrings.Length];
+                        for (int j = 0; j < cardsStrings.Length; j++)
                         {
-                            initialCardsPerColumn = new int[cardsStrings.Length];
-                            for (int j = 0; j < cardsStrings.Length; j++)
-                            {
-                                int.TryParse(cardsStrings[j], out initialCardsPerColumn[j]);
-                            }
+                            int.TryParse(cardsStrings[j], out initialCardsPerColumn[j]);
                         }
                     }
                     
-                    var data = new LevelExcelData
+                    var data = new LevelCSVData
                     {
-                        LevelId = GetCellInt(row, 0),
-                        CardCount = GetCellInt(row, 1),
-                        MaxMoves = GetCellInt(row, 2),
-                        ColumnCount = GetCellInt(row, 3),
-                        SlotCount = GetCellInt(row, 4),
+                        LevelId = int.Parse(values[0]),
+                        CardCount = int.Parse(values[1]),
+                        MaxMoves = int.Parse(values[2]),
+                        ColumnCount = int.Parse(values[3]),
+                        SlotCount = int.Parse(values[4]),
                         CategoryIds = categoryIds,
                         InitialCardsPerColumn = initialCardsPerColumn,
-                        IsTutorial = GetCellBool(row, 6),
-                        IsShowResultAd = GetCellBool(row, 7),
-                        IsShowMatchAd = GetCellBool(row, 8)
+                        IsTutorial = values[6].ToLower() == "true",
+                        IsShowResultAd = values[7].ToLower() == "true",
+                        IsShowMatchAd = values[8].ToLower() == "true"
                     };
                     
                     if (data.LevelId > 0)
@@ -630,11 +640,11 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
                     }
                 }
                 
-                LogSuccess($"从Excel加载了{list.Count}个关卡");
+                LogSuccess($"从CSV加载了{list.Count}个关卡");
             }
             catch (Exception e)
             {
-                LogError($"加载Levels.xlsx失败: {e.Message}");
+                LogError($"加载Levels.csv失败: {e.Message}");
             }
             
             return list;
@@ -645,80 +655,35 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         #region 辅助方法
         
         /// <summary>
-        /// 读取Excel文件
+        /// 解析CSV行（处理引号内的逗号）
         /// </summary>
-        private DataTable ReadExcel(string filePath, string sheetName)
+        private string[] ParseCSVLine(string line)
         {
-            // 使用ExcelDataReader读取Excel
-            // 注意：需要安装ExcelDataReader包
+            var result = new List<string>();
+            bool inQuotes = false;
+            string current = "";
             
-            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+            for (int i = 0; i < line.Length; i++)
             {
-                #if EXCEL_DATA_READER
-                using (var reader = ExcelDataReader.ExcelReaderFactory.CreateReader(stream))
+                char c = line[i];
+                
+                if (c == '"')
                 {
-                    DataSet result = ExcelDataReader.ExcelDataReaderExtensions.AsDataSet(reader);
-                #else
-                using (StreamReader reader = null)
+                    inQuotes = !inQuotes;
+                }
+                else if (c == ',' && !inQuotes)
                 {
-                    DataSet result = null;
-                    Debug.LogError($"[ExcelToSO] ExcelDataReader库未安装，无法读取Excel文件。请安装ExcelDataReader包。");
-                    return null;
-                #endif
-                    
-                    if (result.Tables.Count > 0)
-                    {
-                        // 如果指定了sheet名，尝试找到对应的表
-                        if (!string.IsNullOrEmpty(sheetName))
-                        {
-                            for (int i = 0; i < result.Tables.Count; i++)
-                            {
-                                if (result.Tables[i].TableName == sheetName)
-                                {
-                                    return result.Tables[i];
-                                }
-                            }
-                        }
-                        
-                        // 返回第一个表
-                        return result.Tables[0];
-                    }
+                    result.Add(current.Trim());
+                    current = "";
+                }
+                else
+                {
+                    current += c;
                 }
             }
             
-            return new DataTable();
-        }
-        
-        /// <summary>
-        /// 获取单元格字符串值
-        /// </summary>
-        private string GetCellString(DataRow row, int columnIndex)
-        {
-            if (columnIndex < 0 || columnIndex >= row.Table.Columns.Count)
-                return string.Empty;
-                
-            var value = row[columnIndex];
-            return value != null && value != DBNull.Value ? value.ToString().Trim() : string.Empty;
-        }
-        
-        /// <summary>
-        /// 获取单元格整数值
-        /// </summary>
-        private int GetCellInt(DataRow row, int columnIndex)
-        {
-            string str = GetCellString(row, columnIndex);
-            if (int.TryParse(str, out int result))
-                return result;
-            return 0;
-        }
-        
-        /// <summary>
-        /// 获取单元格布尔值
-        /// </summary>
-        private bool GetCellBool(DataRow row, int columnIndex)
-        {
-            string str = GetCellString(row, columnIndex).ToLower();
-            return str == "true" || str == "1" || str == "yes";
+            result.Add(current.Trim());
+            return result.ToArray();
         }
         
         /// <summary>
@@ -736,28 +701,6 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         }
         
         /// <summary>
-        /// 加载Sprite资源
-        /// </summary>
-        private Sprite LoadSprite(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-                return null;
-                
-            // 尝试从Resources加载
-            string resourcePath = path.Replace("Resources/", "").Replace(".png", "").Replace(".jpg", "");
-            Sprite sprite = Resources.Load<Sprite>(resourcePath);
-            
-            if (sprite == null)
-            {
-                // 尝试从AssetDatabase加载
-                string fullPath = $"Assets/{path}";
-                sprite = AssetDatabase.LoadAssetAtPath<Sprite>(fullPath);
-            }
-            
-            return sprite;
-        }
-        
-        /// <summary>
         /// 确保目录存在
         /// </summary>
         private void EnsureDirectoryExists(string path)
@@ -772,8 +715,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         /// <summary>
         /// 验证数据关联关系
         /// </summary>
-        private void ValidateRelationships(List<CategoryExcelData> categories, 
-            List<WordExcelData> words, List<LevelExcelData> levels)
+        private void ValidateRelationships(List<CategoryCSVData> categories, 
+            List<WordCSVData> words, List<LevelCSVData> levels)
         {
             var categoryIds = categories.Select(c => c.CategoryId).ToHashSet();
             
@@ -808,39 +751,39 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
         private void LogInfo(string message)
         {
             _logs.Add($"[信息] {message}");
-            Debug.Log($"[ExcelToSO] {message}");
+            Debug.Log($"[CSVToSO] {message}");
         }
         
         private void LogSuccess(string message)
         {
             _logs.Add($"[成功] {message}");
-            Debug.Log($"[ExcelToSO] {message}");
+            Debug.Log($"[CSVToSO] {message}");
         }
         
         private void LogWarning(string message)
         {
             _logs.Add($"[警告] {message}");
-            Debug.LogWarning($"[ExcelToSO] {message}");
+            Debug.LogWarning($"[CSVToSO] {message}");
         }
         
         private void LogError(string message)
         {
             _logs.Add($"[错误] {message}");
-            Debug.LogError($"[ExcelToSO] {message}");
+            Debug.LogError($"[CSVToSO] {message}");
         }
         
         #endregion
         
         #region 数据结构
         
-        private class CategoryExcelData
+        private class CategoryCSVData
         {
             public int CategoryId;
             public string CategoryName;
             public string NameKey;
         }
         
-        private class WordExcelData
+        private class WordCSVData
         {
             public string WordId;
             public int CategoryId;
@@ -849,7 +792,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire.Editor
             public string ImagePath;
         }
         
-        private class LevelExcelData
+        private class LevelCSVData
         {
             public int LevelId;
             public int CardCount;

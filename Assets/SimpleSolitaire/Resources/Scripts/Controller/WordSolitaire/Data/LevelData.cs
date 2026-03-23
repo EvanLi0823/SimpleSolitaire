@@ -16,8 +16,12 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         public int ColumnCount;                                // 列区数量
         public int SlotCount;                                  // 分类槽数量
         
+        [Header("发牌配置")]
+        public int[] InitialCardsPerColumn;                     // 每个列区初始发牌数量，格式: 4|5|6 表示从左到右各列发4/5/6张
+        
         [Header("类别配置")]
-        public string[] CategoryIds;                          // 涉及的类别
+        public int[] CategoryIds;                              // 涉及的类别ID列表
+        public int CategorySlotSize;                           // 每个分类槽的目标卡牌数量（默认5）
         
         [Header("其他设置")]
         public bool IsTutorial;                                // 是否引导关卡

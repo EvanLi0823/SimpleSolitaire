@@ -53,7 +53,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         public void LoadLevel(int levelId)
         {
             _currentLevelId = levelId;
-            string path = $"Data/WordSolitaire/Levels/Level_{levelId:D2}";
+            string path = $"Data/WordSolitaire/ScriptableObjects/Levels/Level{levelId}";
             _currentLevel = Resources.Load<LevelData>(path);
             
             if (_currentLevel == null)
@@ -123,7 +123,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             level.MaxMoves = 999;
             level.ColumnCount = 4;
             level.SlotCount = 3;
-            level.CategoryIds = new[] { "animals", "fruits", "colors" };
+            level.CategoryIds = new[] { 1001, 1002, 1004 };
             level.IsTutorial = levelId == 1;
             level.IsShowResultAd = true;
             level.IsShowMatchAd = false;

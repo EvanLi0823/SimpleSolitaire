@@ -56,10 +56,13 @@ namespace SimpleSolitaire.Controller
         public static event Action<int> OnJokerCountChanged;
 
         /// <summary>卡牌成功匹配到分类槽时发布。参数：(categoryId, currentCount, targetCount)。订阅者：CategorySlotUI。</summary>
-        public static event Action<string, int, int> OnCategoryMatched;
+        public static event Action<int, int, int> OnCategoryMatched;
 
         /// <summary>牌库耗尽时发布。订阅者：GameManager。</summary>
         public static event Action OnPackEmpty;
+        
+        /// <summary>点击"恢复库存"按钮时发布。订阅者：GameManager。</summary>
+        public static event Action OnRestorePackClicked;
 
         /// <summary>游戏胜利时发布。参数：(levelId, rewardCoins)。订阅者：WinLayerUI, StatisticsController。</summary>
         public static event Action<int, int> OnWordSolitaireWin;
@@ -101,11 +104,14 @@ namespace SimpleSolitaire.Controller
         public static void PublishJokerCountChanged(int count)
             => OnJokerCountChanged?.Invoke(count);
 
-        public static void PublishCategoryMatched(string categoryId, int currentCount, int targetCount)
+        public static void PublishCategoryMatched(int categoryId, int currentCount, int targetCount)
             => OnCategoryMatched?.Invoke(categoryId, currentCount, targetCount);
 
         public static void PublishPackEmpty()
             => OnPackEmpty?.Invoke();
+        
+        public static void PublishRestorePackClicked()
+            => OnRestorePackClicked?.Invoke();
 
         public static void PublishWordSolitaireWin(int levelId, int rewardCoins)
             => OnWordSolitaireWin?.Invoke(levelId, rewardCoins);

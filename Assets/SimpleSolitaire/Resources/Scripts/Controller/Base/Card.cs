@@ -196,6 +196,22 @@ namespace SimpleSolitaire.Controller
         {
             transform.position = position;
         }
+        
+        /// <summary>
+        /// 设置卡牌正反面显示
+        /// </summary>
+        /// <param name="faceUp">true为正面，false为背面</param>
+        public virtual void SetCardFace(bool faceUp)
+        {
+            if (faceUp)
+            {
+                UpdateCardImg();
+            }
+            else
+            {
+                RestoreBackView();
+            }
+        }
 
         /// <summary>
         /// Initialize card by number.

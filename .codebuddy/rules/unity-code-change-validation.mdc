@@ -1,0 +1,121 @@
+---
+description: 
+alwaysApply: true
+enabled: true
+updatedAt: 2026-03-23T02:19:12.829Z
+provider: 
+---
+
+# Unity 代码变更规范
+
+## 核心规则
+
+每次对 Unity 项目进行代码修改后，**必须**执行以下验证流程，确保 Console 中没有任何错误（error）。
+
+## 强制验证流程
+
+### 1. 代码修改后立即刷新
+在对任何 `.cs` 文件进行修改（添加、删除、编辑代码）后，必须立即调用：
+
+```bash
+mcp_call_tool(
+    serverName="UnityMCP",
+    toolName="refresh_unity",
+    arguments={"compile": "request", "mode": "force", "scope": "all", "wait_for_ready": false}
+)
+```
+
+### 2. 等待编译完成
+检查编辑器状态，等待编译完成：
+
+```bash
+fetch_mcp_resource(
+    server="UnityMCP",
+    uri="mcpforunity://editor/state"
+)
+```
+
+- 确认 `compilation.is_compiling` 为 `false`
+- 确认 `advice.ready_for_tools` 为 `true`
+
+### 3. 检查 Console 错误
+检查 Unity Console 中的错误信息：
+
+```bash
+mcp_call_tool(
+    serverName="UnityMCP",
+    toolName="read_console",
+    arguments={"action": "get", "count": "20"}
+)
+```
+
+### 4. 错误处理原则
+
+**必须满足以下条件才能继续**：
+- ✅ Console 中**没有任何 error**
+- ⚠️ warning 可以存在但不应该被忽略
+- 📝 记录所有 error 并立即修复
+
+**如果发现 error**：
+1. **立即停止当前任务**
+2. **记录错误信息**（文件名、行号、错误代码）
+3. **分析错误原因**
+4. **修复错误**
+5. **重复验证流程**（回到步骤 1）
+
+## 常见错误类型及处理
+
+### 编译错误（CSxxxx）
+- **CS0019**: 运算符不能应用于该类型（如 `int` 类型使用 `??` 运算符）
+- **CS0246**: 找不到类型或命名空间
+- **CS0103**: 当前上下文中不存在该名称
+- **CS1061**: 类型不包含该方法的定义
+
+### 处理流程
+1. 读取错误所在文件的代码上下文（前后 10 行）
+2. 分析错误原因
+3. 使用 `replace_in_file` 或 `write_to_file` 修复
+4. 再次调用验证流程
+
+## 验证检查清单
+
+每次代码变更后，必须确认以下所有项：
+
+- [ ] 已调用 `refresh_unity` 并请求编译
+- [ ] 已检查 `editor_state` 确认编译完成
+- [ ] 已调用 `read_console` 检查错误
+- [ ] Console 中**没有任何 error**
+- [ ] 如果有 error，已记录并修复
+- [ ] 修复后已再次验证
+
+## 注意事项
+
+1. **警告不等同于错误**：warning 可以暂时保留，但优先级高于新功能开发
+2. **批量修改需特别注意**：一次修改多个文件时，需要确保所有文件都编译通过
+3. **命名空间问题**：添加新类或方法时，确保引入必要的命名空间
+4. **Unity API 变更**：使用过时的 API 会产生 warning，但不会阻止编译
+
+## 示例工作流程
+
+```bash
+# 1. 修改代码
+replace_in_file(...)
+
+# 2. 刷新 Unity
+mcp_call_tool(serverName="UnityMCP", toolName="refresh_unity", ...)
+
+# 3. 等待编译（检查 editor_state）
+fetch_mcp_resource(server="UnityMCP", uri="mcpforunity://editor/state")
+
+# 4. 检查 Console
+mcp_call_tool(serverName="UnityMCP", toolName="read_console", ...)
+
+# 5. 如果有 error，修复并重复步骤 2-4
+# 6. 如果无 error，继续下一个任务
+```
+
+## 违规后果
+
+- ❌ 跳过验证流程：可能导致项目无法运行
+- ❌ 忽略 error：影响编译和游戏运行
+- ✅ 严格遵守：确保项目稳定性

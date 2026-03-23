@@ -127,12 +127,11 @@ Center
 │   │   ├── HandDeckGroup          # 手牌堆区域（中间偏上）
 │   │   │   └── HandCardsContainer # 手牌卡牌堆叠显示（最多显示3张）
 │   │   └── PackDeck               # 牌库（右侧）
-│   │       ├── CardBackStack      # 卡背堆叠容器（有牌时显示）
-│   │       │   ├── CardBack_0     # 底层卡背图片
-│   │       │   ├── CardBack_1     # 中层卡背图片（位置偏移）
-│   │       │   └── CardBack_2     # 顶层卡背图片（位置偏移）
-│   │       ├── CountLabelBack/CountLabel   # 剩余数量标签（右上角显示，如 "16"）
-│   │       └── RestoreButton      # 恢复库存按钮（无牌时显示，文本:"恢复库存"）
+│   │       ├── BackGround           # 背景图片容器
+│   │       │   └── Localized Text  # ⭐ 恢复库存文本（无牌时显示，默认禁用 active=false）
+│   │       │       └── 组件: LocalizedText, 文本: "Restore"（英文本地化键）
+│   │       ├── CardBackStack         # 卡背堆叠容器（有牌时显示）
+│   │       └── CountLabelBack/CountLabel # 剩余数量标签（右上角显示，如 "16"）
 │   │
 │   ├── MiddleSection              # 中部区域（分类槽 Toolbox）
 │   │   ├── EmptySlotsContainer    # 空槽位容器（左侧奖杯图标）
@@ -164,7 +163,7 @@ Center
 |------|------|------|----------|
 | **MovesDisplay** | Anchors: `(0, 0.8) → (0.2, 0.95)`（左上） | `Image`（绿色盾牌形状）、`Text` ×2、`MovesDisplay.cs` | 显示剩余步数，绿色盾牌形状背景 |
 | **HandDeckGroup** | Anchors: `(0.3, 0) → (0.6, 1)`（中间偏左） | `Horizontal Layout Group`（Spacing: -80） | 手牌水平堆叠显示，负间距实现重叠效果 |
-| **PackDeck** | Anchors: `(0.75, 0.1) → (0.9, 0.9)`（右侧） | `Button`、`Vertical Layout Group`（Spacing: -15） | 牌库区域，点击翻牌到手牌堆，显示剩余牌数 |
+| **PackDeck** | Anchors: `(0.75, 0.1) → (0.9, 0.9)`（右侧） | `WordSolitaireDeck`、`CanvasRenderer`、`Image` | 牌库区域，点击翻牌到手牌堆，显示剩余牌数。包含背景图、恢复库存文本和数量标签 |
 
 #### 3.2.2 MiddleSection（中部区域 - Toolbox）详细配置
 
@@ -824,3 +823,111 @@ Inspector字段配置:
 > - 2026-03-19: 创建场景节点说明文档，基于 WordSolitaireScene.unity 实时结构
 > - 基于产品功能文档 `词语联想接龙-产品功能文档.md` 验证功能完整性
 > - 参考架构文档 `GameScene架构与游戏流程分析.md` 确保技术一致性
+> - 2026-03-23: 更新 PackDeck 节点结构，确认"恢复库存"文本位置为 BackGround/Localized Text
+
+---
+
+## 附录 C: "恢复库存"文本说明
+
+### C.1 文本位置
+
+**完整路径**: `Canvas/Screen/Center/CardLayer/UpperSection/PackDeck/BackGround/Localized Text`
+
+**节点层级**:
+```
+PackDeck (WordSolitaireDeck)
+├── BackGround (Image, 卡背背景)
+│   └── Localized Text (LocalizedText)  ← "恢复库存"文本
+├── CardBackStack (RectTransform)
+└── CountLabelBack (Image)
+    └── CountLabel (Text)
+```
+
+### C.2 组件配置
+
+**Localized Text 节点**:
+- **组件**: `SimpleSolitaire.Controller.Localization.LocalizedText`
+- **文本内容**: "Restore"（英文本地化键）
+- **当前状态**: `active: false`（默认禁用）
+- **对齐**: `Anchor: Center, Alignment: Center`
+- **尺寸**: Width: 160, Height: 30
+- **颜色**: 白色 (1, 1, 1, 1)
+
+### C.3 显示逻辑
+
+**预期行为**:
+- 牌库有牌时: 隐藏 `Localized Text` (active: false)
+- 牌库无牌时: 显示 `Localized Text` (active: true),显示"恢复库存"提示
+
+**当前实现状态**:
+- ⚠️ 代码中**未实现自动显示/隐藏逻辑**
+- 需要在 `WordSolitaireDeck.UpdatePackCardsPosition()` 或 `UpdateBackgroundColor()` 中添加控制代码
+
+### C.4 实现建议
+
+**方案1: 在 UpdatePackCardsPosition 中添加控制**
+```csharp
+private void UpdatePackCardsPosition()
+{
+    Vector3 basePosition = transform.position;
+    
+    for (int i = 0; i < CardsCount; i++)
+    {
+        CardsArray[i].SetPosition(basePosition);
+        CardsArray[i].transform.SetSiblingIndex(i);
+    }
+    
+    // 新增：根据牌库是否有牌，控制"恢复库存"文本显示
+    UpdateRestoreTextVisibility();
+}
+
+private void UpdateRestoreTextVisibility()
+{
+    // 查找 Localized Text 节点
+    Transform restoreText = transform.Find("BackGround/Localized Text");
+    if (restoreText != null)
+    {
+        // 有牌时隐藏，无牌时显示
+        restoreText.gameObject.SetActive(!HasCards);
+    }
+}
+```
+
+**方案2: 在 UpdateBackgroundColor 中添加控制**
+```csharp
+public override void UpdateBackgroundColor()
+{
+    if (DeckType == WordDeckType.Pack)
+    {
+        Transform restoreText = transform.Find("BackGround/Localized Text");
+        if (restoreText != null)
+        {
+            restoreText.gameObject.SetActive(!HasCards);
+        }
+    }
+}
+```
+
+**调用时机**:
+- 每次调用 `PackDeck.UpdateCardsPosition(false)` 时自动更新
+- 发牌操作后自动更新
+- 恢复库存操作后自动更新
+
+### C.5 注意事项
+
+1. **节点查找方式**:
+   - 使用 `transform.Find("BackGround/Localized Text")` 查找子节点
+   - 确保节点名称与场景中一致（区分大小写）
+   
+2. **性能优化**:
+   - 考虑在 `Awake()` 中缓存 `Localized Text` 引用
+   - 避免每次更新时都调用 `Find()`
+
+3. **本地化支持**:
+   - 文本使用 `LocalizedText` 组件，支持多语言
+   - 英文键为 "Restore"，需要确保本地化配置正确
+
+4. **测试要点**:
+   - 测试牌库有牌时文本是否隐藏
+   - 测试牌库无牌时文本是否显示
+   - 测试点击牌库恢复库存后文本是否隐藏

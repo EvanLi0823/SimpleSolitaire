@@ -12,7 +12,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
     {
         [Header("词语卡牌属性")]
         public string WordId;                  // 单词ID
-        public string CategoryId;              // 所属类别ID
+        public int CategoryId;              // 所属类别ID
         public CardType WordCardType;          // 卡牌类型（Text/Image/Joker）
         public Sprite WordImageSprite;         // 单词图片（仅图片卡使用）
         
@@ -26,16 +26,30 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         [SerializeField] private GameObject _jokerIcon;               // 万能卡标识
         [SerializeField] private Image _categoryIcon;                 // 分类图标（仅分类卡使用）
         [SerializeField] private Text _categoryCountText;             // 分类计数文本（显示如"1/5"）
+        [SerializeField] private Text _categoryNameText;              // 分类名称文本（显示类别名称）
         
         // 公开访问属性
         public Text WordText => _wordText;
         public Image WordImage => _wordImage;
         public GameObject JokerIcon => _jokerIcon;
         
+        // 卡牌正面显示状态
+        private bool _isFaceUp = false;
+        
+        /// <summary>
+        /// 是否正面朝上
+        /// </summary>
+        public bool IsFaceUp => _isFaceUp;
+        
         /// <summary>
         /// 是否是万能卡
         /// </summary>
         public bool IsJoker => WordCardType == global::SimpleSolitaire.Controller.WordSolitaire.CardType.Joker;
+        
+        /// <summary>
+        /// 是否是分类卡
+        /// </summary>
+        public bool IsCategoryCard => WordCardType == global::SimpleSolitaire.Controller.WordSolitaire.CardType.CategoryCard;
           
         protected void Awake()
         {
@@ -62,6 +76,9 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                     
                     // 查找分类计数文本（在FrontCategories下）
                     _categoryCountText = this.Get<Text>("Front/FrontCategories/CategoriesCount");
+                    
+                    // 查找分类名称文本
+                    _categoryNameText = this.Get<Text>("Front/FrontCategories/CategoryName");
                     
                     // wordImage 默认指向 FrontNormal，实际使用时根据卡牌类型动态设置
                     if (_frontNormalImage != null)
@@ -118,6 +135,9 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 case global::SimpleSolitaire.Controller.WordSolitaire.CardType.Joker:
                     ShowJokerCard();
                     break;
+                case global::SimpleSolitaire.Controller.WordSolitaire.CardType.CategoryCard:
+                    ShowCategoryCard();
+                    break;
             }
         }
         
@@ -153,6 +173,105 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             if (JokerIcon != null)
             {
                 JokerIcon.SetActive(true);
+            }
+        }
+        
+        /// <summary>
+        /// 显示分类卡
+        /// </summary>
+        private void ShowCategoryCard()
+        {
+            // 显示分类图标（左上角标识）
+            if (_categoryIcon != null)
+            {
+                _categoryIcon.gameObject.SetActive(true);
+            }
+            
+            // 显示分类计数（右上角0/N格式）
+            if (_categoryCountText != null)
+            {
+                _categoryCountText.gameObject.SetActive(true);
+                // 格式: "0/N" - 当前收集数量/目标数量
+                // 这里使用默认目标值，实际由CategorySlot更新
+                _categoryCountText.text = $"0/5"; 
+            }
+            
+            // 显示分类名称（中间文本）
+            if (_categoryNameText != null)
+            {
+                _categoryNameText.gameObject.SetActive(true);
+                // 显示类别ID对应的名称（实际应从Categories数据获取）
+                _categoryNameText.text = GetCategoryName(CategoryId);
+            }
+            
+            // 显示分类卡正面图片
+            if (_frontCategoriesImage != null)
+            {
+                _frontCategoriesImage.gameObject.SetActive(true);
+            }
+        }
+        
+        /// <summary>
+        /// 获取分类名称
+        /// </summary>
+        private string GetCategoryName(int categoryId)
+        {
+            // 实际应从CategoryData获取，这里返回默认名称
+            return $"类别{categoryId}";
+        }
+        
+        /// <summary>
+        /// 设置卡牌正反面显示
+        /// </summary>
+        /// <param name="faceUp">true为正面，false为背面</param>
+        public override void SetCardFace(bool faceUp)
+        {
+            _isFaceUp = faceUp;
+            
+            if (faceUp)
+            {
+                // 显示正面容器
+                if (_frontContainer != null)
+                {
+                    _frontContainer.SetActive(true);
+                }
+                // 更新卡牌视觉
+                UpdateCardVisual();
+            }
+            else
+            {
+                // 隐藏正面容器
+                if (_frontContainer != null)
+                {
+                    _frontContainer.SetActive(false);
+                }
+                // 显示卡背
+                RestoreBackView();
+            }
+        }
+        
+        /// <summary>
+        /// 更新分类计数显示
+        /// </summary>
+        /// <param name="current">当前收集数量</param>
+        /// <param name="target">目标数量</param>
+        public void UpdateCategoryCount(int current, int target)
+        {
+            if (_categoryCountText != null)
+            {
+                _categoryCountText.text = $"{current}/{target}";
+            }
+        }
+        
+        /// <summary>
+        /// 更新分类名称显示
+        /// </summary>
+        /// <param name="name">分类名称</param>
+        public void UpdateCategoryName(string name)
+        {
+            if (_categoryNameText != null)
+            {
+                _categoryNameText.text = name;
             }
         }
         

@@ -13,11 +13,11 @@ namespace SimpleSolitaire.Controller.WordSolitaire
 
         // ── Inspector配置 ────────────────────────────────────────────────────
         [Header("数据路径配置")]
-        [SerializeField] private string _categoriesPath = "Data/WordSolitaire/Categories";
+        [SerializeField] private string _categoriesPath = "Data/WordSolitaire/ScriptableObjects/Categories";
 
         // ── 内部数据结构 ──────────────────────────────────────────────────────
-        /// <summary>词库类别缓存字典：Key = categoryId, Value = WordCategoryData</summary>
-        private Dictionary<string, WordCategoryData> _categoriesCache;
+        /// <summary>词库类别缓存字典：Key = categoryId(int), Value = WordCategoryData</summary>
+        private Dictionary<int, WordCategoryData> _categoriesCache;
 
         /// <summary>是否已完成数据加载</summary>
         private bool _isLoaded;
@@ -32,7 +32,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             }
             Instance = this;
             
-            _categoriesCache = new Dictionary<string, WordCategoryData>();
+            _categoriesCache = new Dictionary<int, WordCategoryData>();
             _isLoaded = false;
         }
 
@@ -55,7 +55,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             
             foreach (var category in categories)
             {
-                if (category != null && !string.IsNullOrEmpty(category.CategoryId))
+                if (category != null && category.CategoryId > 0)
                 {
                     _categoriesCache[category.CategoryId] = category;
                 }
@@ -70,7 +70,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         /// <param name="categoryId">类别ID</param>
         /// <returns>词库类别数据，不存在返回null</returns>
-        public WordCategoryData GetCategoryById(string categoryId)
+        public WordCategoryData GetCategoryById(int categoryId)
         {
             if (!_isLoaded)
             {
@@ -99,7 +99,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         /// <param name="categoryIds">类别ID数组</param>
         /// <returns>词库类别数据列表</returns>
-        public List<WordCategoryData> GetCategoriesByIds(string[] categoryIds)
+        public List<WordCategoryData> GetCategoriesByIds(int[] categoryIds)
         {
             var result = new List<WordCategoryData>();
             
@@ -133,7 +133,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// <summary>
         /// 检查类别是否存在
         /// </summary>
-        public bool HasCategory(string categoryId)
+        public bool HasCategory(int categoryId)
         {
             if (!_isLoaded)
             {
@@ -161,15 +161,15 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// <summary>
         /// 动态加载指定类别数据
         /// </summary>
-        private WordCategoryData LoadCategoryDynamic(string categoryId)
+        private WordCategoryData LoadCategoryDynamic(int categoryId)
         {
-            string path = $"{_categoriesPath}/Category_{categoryId}";
+            string path = $"{_categoriesPath}/{categoryId}";
             var category = Resources.Load<WordCategoryData>(path);
             
             if (category == null)
             {
                 // 尝试其他命名格式
-                path = $"{_categoriesPath}/{categoryId}";
+                path = $"{_categoriesPath}/Category_{categoryId}";
                 category = Resources.Load<WordCategoryData>(path);
             }
 

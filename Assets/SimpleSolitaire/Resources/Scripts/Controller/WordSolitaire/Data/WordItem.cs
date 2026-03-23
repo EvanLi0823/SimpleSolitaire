@@ -12,8 +12,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         [Tooltip("单词唯一ID，格式: categoryId_序号")]
         public string WordId;
         
-        [Tooltip("所属词组ID，关联CategoryData")]
-        public string CategoryId;
+        [Tooltip("所属词组ID（数字），关联CategoryData")]
+        public int CategoryId;
         
         [Header("文本")]
         [Tooltip("单词文本的多语言Key，格式: word_{wordId}")]
@@ -39,9 +39,9 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 return false;
             }
             
-            if (string.IsNullOrEmpty(CategoryId))
+            if (CategoryId <= 0)
             {
-                Debug.LogError($"[WordItem] WordId={WordId} 的CategoryId不能为空");
+                Debug.LogError($"[WordItem] WordId={WordId} 的CategoryId必须大于0");
                 return false;
             }
             

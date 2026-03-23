@@ -20,6 +20,11 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// <summary>
         /// 万能卡 - 可放入任意分类槽
         /// </summary>
-        Joker
+        Joker,
+
+        /// <summary>
+        /// 分类卡 - 代表词组类别的卡牌，放置到分类槽时激活该类别
+        /// </summary>
+        CategoryCard
     }
 }

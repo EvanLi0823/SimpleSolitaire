@@ -235,7 +235,7 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// 卡牌匹配成功回调
         /// 由 WordSolitaireCardLogic 调用
         /// </summary>
-        public void OnCardMatched(string categoryId, int currentCount, int targetCount)
+        public void OnCardMatched(int categoryId, int currentCount, int targetCount)
         
         {
             // 增加分数

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a910c604d220944c9b1f02d1437b738c, type: 3}
+  m_Name: 1009
+  m_EditorClassIdentifier: 
+  CategoryId: 1009
+  CategoryName: transport
+  NameKey: transport
+  Icon: {fileID: 0}
+  Words:
+  - WordId: 1009_001
+    CategoryId: 1009
+    TextKey: car
+    CardType: 0
+    Image: {fileID: 0}
+  - WordId: 1009_002
+    CategoryId: 1009
+    TextKey: bus
+    CardType: 0
+    Image: {fileID: 0}
+  - WordId: 1009_003
+    CategoryId: 1009
+    TextKey: train
+    CardType: 0
+    Image: {fileID: 0}
+  - WordId: 1009_004
+    CategoryId: 1009
+    TextKey: bike
+    CardType: 0
+    Image: {fileID: 0}
+  - WordId: 1009_005
+    CategoryId: 1009
+    TextKey: plane
+    CardType: 0
+    Image: {fileID: 0}

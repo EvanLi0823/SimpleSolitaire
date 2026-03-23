@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a910c604d220944c9b1f02d1437b738c, type: 3}
+  m_Name: 1010
+  m_EditorClassIdentifier: 
+  CategoryId: 1010
+  CategoryName: sports
+  NameKey: sports
+  Icon: {fileID: 0}
+  Words:
+  - WordId: 1010_001
+    CategoryId: 1010
+    TextKey: football
+    CardType: 0
+    Image: {fileID: 0}
+  - WordId: 1010_002
+    CategoryId: 1010
+    TextKey: basketball
+    CardType: 0
+    Image: {fileID: 0}
+  - WordId: 1010_003
+    CategoryId: 1010
+    TextKey: tennis
+    CardType: 0
+    Image: {fileID: 0}
+  - WordId: 1010_004
+    CategoryId: 1010
+    TextKey: golf
+    CardType: 0
+    Image: {fileID: 0}
+  - WordId: 1010_005
+    CategoryId: 1010
+    TextKey: swimming
+    CardType: 0
+    Image: {fileID: 0}
