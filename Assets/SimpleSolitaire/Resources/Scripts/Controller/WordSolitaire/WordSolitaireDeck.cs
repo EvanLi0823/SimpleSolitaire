@@ -119,15 +119,14 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                     return wordCard.CategoryId == CategoryId;
                     
                 case WordDeckType.Column:
-                    // 列区：空白时只接受分类卡，有卡时接受同词组卡牌
+                    // 列区：空白时接受分类卡或单词卡，有卡时按规则判断
                     if (CurrentCardCount == 0)
                     {
-                        // 空白列区只接受分类卡作为起始
-                        return wordCard.IsCategoryCard;
+                        // 空白列区接受分类卡或单词卡
+                        return wordCard.IsCategoryCard || !wordCard.IsJoker;
                     }
                     else
                     {
-                        // 非空白列区：只接受同词组的卡牌（分类卡或单词卡）
                         WordSolitaireCard topCard = CardsArray[CurrentCardCount - 1] as WordSolitaireCard;
                         if (topCard == null) return false;
                         
@@ -135,11 +134,25 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                         if (wordCard.IsJoker)
                             return false;
                         
+                        // 如果最后一张是万能卡，接受任何非万能卡
+                        if (topCard.IsJoker)
+                            return !wordCard.IsJoker;
+                        
+                        // 如果最后一张是分类卡
+                        if (topCard.IsCategoryCard)
+                        {
+                            // 分类卡不能放在分类卡上
+                            if (wordCard.IsCategoryCard) return false;
+                            // 单词卡不能放在分类卡上
+                            return false;
+                        }
+                        
+                        // 最后一张是单词卡
                         // 分类卡只能放在同词组的单词卡上
                         if (wordCard.IsCategoryCard)
                             return topCard.CategoryId == wordCard.CategoryId;
                         
-                        // 单词卡只能放在同词组的分类卡或单词卡上
+                        // 单词卡只能放在同词组的单词卡上
                         return topCard.CategoryId == wordCard.CategoryId;
                     }
                     

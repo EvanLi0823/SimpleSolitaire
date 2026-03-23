@@ -90,11 +90,12 @@ namespace SimpleSolitaire.Controller
 
             CalculateCardSiblingIndex();
             _deck.SetCardsToTop(this);
-            CardLogicComponent.ParticleStars.transform.SetParent(gameObject.transform);
-            CardLogicComponent.ParticleStars.transform.SetAsFirstSibling();
 
-            _coroutine = ActivateParticle();
-            StartCoroutine(_coroutine);
+            // TODO: 暂时注释掉粒子效果
+            // CardLogicComponent.ParticleStars.transform.SetParent(gameObject.transform);
+            // CardLogicComponent.ParticleStars.transform.SetAsFirstSibling();
+            // _coroutine = ActivateParticle();
+            // StartCoroutine(_coroutine);
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -110,8 +111,11 @@ namespace SimpleSolitaire.Controller
             {
                 Vector3 offset = _newPosition - _lastMousePosition;
                 transform.position += offset;
-                CardLogicComponent.ParticleStars.transform.position = new Vector3(transform.position.x,
-                    transform.position.y - 20f, transform.position.z);
+
+                // TODO: 暂时注释掉粒子效果位置更新
+                // CardLogicComponent.ParticleStars.transform.position = new Vector3(transform.position.x,
+                //     transform.position.y - 20f, transform.position.z);
+
                 _deck.SetPositionFromCard(this, transform.position.x, transform.position.y);
             }
 
@@ -128,9 +132,10 @@ namespace SimpleSolitaire.Controller
             transform.SetSiblingIndex(IndexZ);
             _lastMousePosition = Vector3.zero;
 
-            if (_coroutine != null)
-                StopCoroutine(_coroutine);
-            CardLogicComponent.ParticleStars.Stop();
+            // TODO: 暂时注释掉粒子效果停止
+            // if (_coroutine != null)
+            //     StopCoroutine(_coroutine);
+            // CardLogicComponent.ParticleStars.Stop();
 
             await CardLogicComponent.OnDragEnd(this);
             _deck.UpdateCardsPosition(false);

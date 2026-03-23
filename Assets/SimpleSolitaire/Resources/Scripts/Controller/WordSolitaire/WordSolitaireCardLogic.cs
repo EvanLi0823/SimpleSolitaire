@@ -374,32 +374,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             WordSolitaireDeck originalDeck = card.Deck as WordSolitaireDeck;
             
-            // 如果是分类卡，收集其上方的同词组卡牌一起移动
-            List<WordSolitaireCard> cardsToMove = new List<WordSolitaireCard>();
-            cardsToMove.Add(card);
-            
-            if (card.IsCategoryCard && originalDeck != null)
-            {
-                // 找到分类卡在牌堆中的索引
-                int cardIndex = originalDeck.CardsArray.IndexOf(card);
-                if (cardIndex >= 0 && cardIndex < originalDeck.CardsArray.Count - 1)
-                {
-                    // 收集上方所有同词组的卡牌
-                    for (int i = cardIndex + 1; i < originalDeck.CardsArray.Count; i++)
-                    {
-                        WordSolitaireCard aboveCard = originalDeck.CardsArray[i] as WordSolitaireCard;
-                        if (aboveCard != null && aboveCard.CategoryId == card.CategoryId)
-                        {
-                            cardsToMove.Add(aboveCard);
-                        }
-                        else
-                        {
-                            // 遇到不同词组的卡牌，停止收集
-                            break;
-                        }
-                    }
-                }
-            }
+            // 收集要一起移动的卡牌（主卡 + 上方同词组卡牌）
+            List<WordSolitaireCard> cardsToMove = CollectCardsToMove(card, originalDeck);
             
             // 从原牌堆移除所有要移动的卡牌
             if (originalDeck != null)
@@ -431,6 +407,45 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             }
             
             await Task.Yield();
+        }
+        
+        /// <summary>
+        /// 收集需要一起移动的卡牌
+        /// 规则：拖拽的卡牌及其上方的同词组卡牌
+        /// </summary>
+        private List<WordSolitaireCard> CollectCardsToMove(WordSolitaireCard card, WordSolitaireDeck originalDeck)
+        {
+            List<WordSolitaireCard> cardsToMove = new List<WordSolitaireCard>();
+            cardsToMove.Add(card); // 添加主卡
+            
+            if (originalDeck == null)
+            {
+                return cardsToMove;
+            }
+            
+            // 找到卡牌在牌堆中的索引
+            int cardIndex = originalDeck.CardsArray.IndexOf(card);
+            if (cardIndex < 0)
+            {
+                return cardsToMove;
+            }
+            
+            // 从最后一张牌开始，向上收集同词组的卡牌
+            for (int i = cardIndex - 1; i >= 0; i--)
+            {
+                WordSolitaireCard aboveCard = originalDeck.CardsArray[i] as WordSolitaireCard;
+                if (aboveCard != null && aboveCard.CategoryId == card.CategoryId)
+                {
+                    cardsToMove.Add(aboveCard);
+                }
+                else
+                {
+                    // 遇到不同词组的卡牌，停止收集
+                    break;
+                }
+            }
+            
+            return cardsToMove;
         }
         
         /// <summary>
