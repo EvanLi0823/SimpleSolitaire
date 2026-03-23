@@ -71,11 +71,11 @@ namespace SimpleSolitaire.Controller
         /// Show star particles.
         /// </summary>
         /// <returns></returns>
-        private IEnumerator ActivateParticle()
-        {
-            yield return new WaitForSeconds(0.1f);
-            CardLogicComponent.ParticleStars.Play();
-        }
+        // private IEnumerator ActivateParticle() // 已注释，不再使用粒子效果
+        // {
+        //     yield return new WaitForSeconds(0.1f);
+        //     CardLogicComponent.ParticleStars.Play();
+        // }
 
         public void OnBeginDrag(PointerEventData eventData)
         {

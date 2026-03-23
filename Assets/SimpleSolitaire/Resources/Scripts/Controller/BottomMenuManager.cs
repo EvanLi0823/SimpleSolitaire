@@ -10,7 +10,8 @@ namespace SimpleSolitaire.Controller
 
         [SerializeField] private RectTransform _bottomPanel;
         [SerializeField] private TableLayoutGroup _bottomBarGroup;
-        [Space] [SerializeField] private OrientationManager _orientationManager;
+        [Space]
+        // [SerializeField] private OrientationManager _orientationManager; - 已注释，暂时不需要考虑横屏
         [SerializeField] private DeckSizeManager _deckSizeManager;
         [SerializeField] private AdsManager _adsManager;
 
@@ -26,7 +27,7 @@ namespace SimpleSolitaire.Controller
         public void Awake()
         {
             _adsManager.BannerStateAction += OnBannerState;
-            _orientationManager.OnOrientationChanged += OnOnOrientationChanged;
+            // _orientationManager.OnOrientationChanged += OnOnOrientationChanged; - 已注释，暂时不需要考虑横屏
 
             _isBarActive = true;
         }
@@ -34,13 +35,13 @@ namespace SimpleSolitaire.Controller
         public void OnDestroy()
         {
             _adsManager.BannerStateAction -= OnBannerState;
-            _orientationManager.OnOrientationChanged -= OnOnOrientationChanged;
+            // _orientationManager.OnOrientationChanged -= OnOnOrientationChanged; - 已注释，暂时不需要考虑横屏
         }
 
-        private void OnOnOrientationChanged(ScreenOrientation obj)
-        {
-            TryResizeBottomPanel();
-        }
+        // private void OnOnOrientationChanged(ScreenOrientation obj) - 已注释，暂时不需要考虑横屏
+        // {
+        //     TryResizeBottomPanel();
+        // }
 
         private void OnBannerState(bool state)
         {
@@ -50,7 +51,9 @@ namespace SimpleSolitaire.Controller
         private void TryResizeBottomPanel()
         {
             var scaleFactor = _deckSizeManager.GetOrientationScaleFactor();
-            var additionalOffsetMultiplier = _orientationManager.OrientationType == OrientationType.Landscape ? _landscapeBottomBarAdditionalOffsetMultiplier : 1f;
+            // 已注释，暂时不需要考虑横屏
+            // var additionalOffsetMultiplier = _orientationManager.OrientationType == OrientationType.Landscape ? _landscapeBottomBarAdditionalOffsetMultiplier : 1f;
+            var additionalOffsetMultiplier = 1f; // 临时：默认不使用横屏偏移
             var height = _adsManager.BannerHeight > 0 ? (_adsManager.BannerHeight * additionalOffsetMultiplier) / scaleFactor : 0;
 
             InitializeBottomPanel(height);

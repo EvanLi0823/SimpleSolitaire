@@ -44,7 +44,7 @@ namespace SimpleSolitaire.Controller
         public UndoPerformer UndoPerformerComponent;
         public StatisticsController StatisticsComponent;
         public CardShirtManager CardShirtComponent;
-        public OrientationManager OrientationComponent;
+        // public OrientationManager OrientationComponent; - 已注释，暂时不需要考虑横屏
         public DeckSizeManager DeckSizeComponent;
         public DeckSpacesContainer DeckSpacesContainer;
 
@@ -91,32 +91,62 @@ namespace SimpleSolitaire.Controller
             InitCardNodes();
             InitAllDeckArray();
             UndoPerformerComponent.ResetUndoStates();
-            ParticleStars.Stop();
+            if (ParticleStars != null)
+            {
+                ParticleStars.Stop();
+            }
         }
 
         public virtual void InitializeSpacesDictionary()
         {
             SpacesDict = new Dictionary<DeckSpacesTypes, float>();
 
+            // 已注释，暂时不需要考虑横屏
+            // if (DeckSizeComponent == null || OrientationComponent == null || OrientationComponent.OrientationContainer == null)
+            // {
+            //     Debug.LogWarning("[CardLogic] InitializeSpacesDictionary: 必要组件为 null，跳过初始化");
+            //     return;
+            // }
+
+            if (DeckSizeComponent == null)
+            {
+                Debug.LogWarning("[CardLogic] InitializeSpacesDictionary: DeckSizeComponent 为 null，跳过初始化");
+                return;
+            }
+
             _deckWidth = DeckSizeComponent.CurrentDeckSize.x;
             _deckHeight = DeckSizeComponent.CurrentDeckSize.y;
 
-            var orientation = OrientationComponent.OrientationContainer.CurrentOrientation;
-            var screen = orientation.ScrOrientation;
-            var hand = orientation.Hand;
-            var scaleFactor = DeckSizeComponent.GetOrientationScaleFactor();
+            // 已注释，暂时不需要考虑横屏
+            // var orientation = OrientationComponent.OrientationContainer.CurrentOrientation;
+            // if (orientation == null)
+            // {
+            //     Debug.LogWarning("[CardLogic] InitializeSpacesDictionary: CurrentOrientation 为 null，跳过初始化");
+            //     return;
+            // }
+            //
+            // var screen = orientation.ScrOrientation;
+            // var hand = orientation.Hand;
+            // var scaleFactor = DeckSizeComponent.GetOrientationScaleFactor();
 
-            var deckSpaceData = DeckSpacesContainer.Data.FirstOrDefault(x => x.Screen == screen);
-
-            if (deckSpaceData != null)
-            {
-                foreach (var item in deckSpaceData.Data)
-                {
-                    SpacesDict[item.Type] = item.DividerType == DeckSpaceDividerType.Height
-                        ? _deckHeight / item.Divider * scaleFactor
-                        : _deckWidth / item.Divider * scaleFactor;
-                }
-            }
+            // 已注释，暂时不需要考虑横屏
+            // if (DeckSpacesContainer == null || DeckSpacesContainer.Data == null)
+            // {
+            //     Debug.LogWarning("[CardLogic] InitializeSpacesDictionary: DeckSpacesContainer 为 null，跳过初始化");
+            //     return;
+            // }
+            //
+            // var deckSpaceData = DeckSpacesContainer.Data.FirstOrDefault(x => x.Screen == screen);
+            //
+            // if (deckSpaceData != null)
+            // {
+            //     foreach (var item in deckSpaceData.Data)
+            //     {
+            //         SpacesDict[item.Type] = item.DividerType == DeckSpaceDividerType.Height
+            //             ? _deckHeight / item.Divider * scaleFactor
+            //             : _deckWidth / item.Divider * scaleFactor;
+            //     }
+            // }
         }
 
         public float GetSpaceFromDictionary(DeckSpacesTypes type)

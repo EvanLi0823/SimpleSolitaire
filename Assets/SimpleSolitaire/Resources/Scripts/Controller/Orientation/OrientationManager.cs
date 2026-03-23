@@ -123,6 +123,13 @@ namespace SimpleSolitaire.Controller
 
             _deckElements.ForEach(x =>
             {
+                // 跳过null元素
+                if (x == null)
+                {
+                    Debug.LogWarning($"[OrientationManager] _deckElements中包含null元素，已跳过");
+                    return;
+                }
+
                 if (_orientationContainer.CurrentElements.TryGetValue(x.Key, out OrientationElement element))
                 {
                     x.Fitter.aspectMode = _orientationContainer.CurrentOrientation.AspectMode;
@@ -179,6 +186,13 @@ namespace SimpleSolitaire.Controller
 
             _deckElements.ForEach(x =>
             {
+                // 跳过null元素
+                if (x == null)
+                {
+                    Debug.LogWarning($"[OrientationManager] _deckElements中包含null元素，已跳过");
+                    return;
+                }
+
                 if (_orientationContainer.CurrentElements.TryGetValue(x.Key, out OrientationElement element))
                 {
                     x.Fitter.aspectMode = _orientationContainer.CurrentOrientation.AspectMode;

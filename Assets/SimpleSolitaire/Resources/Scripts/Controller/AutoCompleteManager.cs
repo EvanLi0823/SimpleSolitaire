@@ -42,7 +42,10 @@ namespace SimpleSolitaire.Controller
         public void SetEnableAutoCompleteFeature(bool state)
         {
             _autoCompleteFeatureEnable = state;
-            AutoCompleteHintButtonObj.SetActive(_isCanComplete && state && CheckAvailabilityByMode());
+            if (AutoCompleteHintButtonObj != null)
+            {
+                AutoCompleteHintButtonObj.SetActive(_isCanComplete && state && CheckAvailabilityByMode());
+            }
         }
 
         /// <summary>
@@ -59,7 +62,10 @@ namespace SimpleSolitaire.Controller
 
             bool isAvailable = CheckAvailabilityByMode();
 
-            AutoCompleteHintButtonObj.SetActive(isAvailable);
+            if (AutoCompleteHintButtonObj != null)
+            {
+                AutoCompleteHintButtonObj.SetActive(isAvailable);
+            }
         }
 
         private bool CheckAvailabilityByMode()
@@ -109,7 +115,10 @@ namespace SimpleSolitaire.Controller
             {
                 return;
             }
-            AutoCompleteHintButtonObj.SetActive(false);
+            if (AutoCompleteHintButtonObj != null)
+            {
+                AutoCompleteHintButtonObj.SetActive(false);
+            }
         }
 
         /// <summary>

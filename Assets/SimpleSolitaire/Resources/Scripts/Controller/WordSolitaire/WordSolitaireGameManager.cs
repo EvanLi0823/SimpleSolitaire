@@ -55,27 +55,56 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         protected override void InitializeGame()
         {
-            base.InitializeGame();
-            
+            // 检查必要组件是否配置
+            if (_undoPerformComponent == null)
+            {
+                Debug.LogError("[WordSolitaireGameManager] _undoPerformComponent 未配置");
+            }
+            if (_adsManagerComponent == null)
+            {
+                Debug.LogError("[WordSolitaireGameManager] _adsManagerComponent 未配置");
+            }
+            if (_cardLogic == null)
+            {
+                Debug.LogError("[WordSolitaireGameManager] _cardLogic 未配置");
+            }
+
+            // 只有在所有必要组件都存在时才调用基类初始化
+            if (_undoPerformComponent != null && _adsManagerComponent != null &&
+                _cardLogic != null)
+            {
+                base.InitializeGame();
+            }
+
+            // 【重要】最先加载关卡数据
+            LoadCurrentLevel();
+
+            // 初始化卡牌逻辑的关卡数据（必须在InitCardLogic之前）
+            if (_cardLogic is WordSolitaireCardLogic wordCardLogic && _currentLevel != null)
+            {
+                wordCardLogic.InitializeLevel(_currentLevel);
+            }
+
             // 预加载词库数据（优化：提前加载避免首次使用时的延迟）
             var wordDataManager = FindObjectOfType<WordDataManager>();
             wordDataManager?.PreloadAllCategories();
-            
+
             // 初始化金币管理器
             if (_coinManager == null)
             {
                 _coinManager = gameObject.AddComponent<CoinManager>();
             }
             _coinManager.Initialize(_gameConfig != null ? _gameConfig.InitialCoins : 100);
-            
+
             // 重置广告触发标记
             _hasShownMatchAd = false;
         }
 
         /// <summary>
-        /// 初始化卡牌逻辑（由基类调用）
+        /// 加载当前关卡数据
+        /// 必须在 InitializeGame 中最先调用
         /// </summary>
-        protected override void InitCardLogic()
+        private void LoadCurrentLevel()
         {
             // 加载当前关卡
             if (_levelDataManager == null)
@@ -83,23 +112,28 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 Debug.LogError("[WordSolitaireGameManager] _levelDataManager 未配置，无法加载关卡数据");
                 _currentLevel = null;
                 _remainingSteps = 999;
+                return;
             }
-            else
+
+            _currentLevel = _levelDataManager.GetCurrentLevel();
+            if (_currentLevel == null)
             {
-                _currentLevel = _levelDataManager.GetCurrentLevel();
-                if (_currentLevel == null)
-                {
-                    Debug.LogError("[WordSolitaireGameManager] 无法加载当前关卡数据");
-                    _remainingSteps = 999;
-                }
-                else
-                {
-                    _remainingSteps = _currentLevel.MaxMoves;
-                    Debug.Log($"[WordSolitaireGameManager] 关卡 {_currentLevel.LevelId} 加载完成，最大步数: {_remainingSteps}");
-                }
+                Debug.LogError("[WordSolitaireGameManager] 无法加载当前关卡数据");
+                _remainingSteps = 999;
+                return;
             }
-            
-            // 初始化卡牌逻辑
+
+            _remainingSteps = _currentLevel.MaxMoves;
+            Debug.Log($"[WordSolitaireGameManager] 关卡 {_currentLevel.LevelId} 加载完成，最大步数: {_remainingSteps}");
+        }
+
+        /// <summary>
+        /// 初始化卡牌逻辑（GameManager 抽象方法实现）
+        /// 这个方法会在 InitGameState 和 LoadGame 中被调用
+        /// </summary>
+        protected override void InitCardLogic()
+        {
+            // 初始化卡牌逻辑的关卡数据（关卡数据已在 LoadCurrentLevel 中加载）
             if (_cardLogic is WordSolitaireCardLogic wordCardLogic)
             {
                 wordCardLogic.InitializeLevel(_currentLevel);

@@ -414,6 +414,83 @@ MonoBehaviour:
   ColumnIndex: 0
   HandDirection: 0
   MaxVisibleCards: 3
+--- !u!1 &156029270
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 156029271}
+  - component: {fileID: 156029272}
+  - component: {fileID: 156029273}
+  m_Layer: 0
+  m_Name: OrientationManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &156029271
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 156029270}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 215433478}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &156029272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 156029270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feaacc46c426c4b5c830569364223ddc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _deckSizeManager: {fileID: 245694063}
+  _orientationContainer: {fileID: 11400000, guid: 43b75f925f2d14540b9b05da21c55e9a,
+    type: 2}
+  _hintManager: {fileID: 418428742}
+  _cardLogic: {fileID: 404369807}
+  _adsManager: {fileID: 2056229144}
+  _bottomMenuManager: {fileID: 667486514}
+  _deckElements: []
+  _portraitBottomBarItemWidth: 100
+  _landscapeBottomBarItemWidth: 50
+  _portraitLayerScale: 1
+  _landscapeLayerScale: 0.5
+  _changeOrientationTime: 0.1
+  _orientationType: 0
+  _standaloneDefaultWidth: 720
+  _standaloneDefaultHeight: 1280
+--- !u!114 &156029273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 156029270}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a6b3a28934f97c48af0d54ab5be3f3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Screen: 0
+  Hand: 0
+  Logic: {fileID: 156029272}
+  TryUpdateExistingOrientation: 1
 --- !u!1 &172890813
 GameObject:
   m_ObjectHideFlags: 0
@@ -766,6 +843,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 411655883}
+  - {fileID: 156029271}
   - {fileID: 2056229143}
   - {fileID: 726813789}
   - {fileID: 651396521}
@@ -775,7 +853,6 @@ Transform:
   - {fileID: 1008506453}
   - {fileID: 321646396}
   - {fileID: 371104054}
-  - {fileID: 948997781}
   - {fileID: 245694062}
   - {fileID: 667486513}
   - {fileID: 661518151}
@@ -816,10 +893,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1086112545}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.00065231}
-  m_SizeDelta: {x: 720, y: 483.63}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &244256011
 GameObject:
@@ -833,6 +910,7 @@ GameObject:
   - component: {fileID: 244256013}
   - component: {fileID: 244256015}
   - component: {fileID: 244256014}
+  - component: {fileID: 244256016}
   m_Layer: 5
   m_Name: PackDeck
   m_TagString: Untagged
@@ -874,7 +952,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bed911354e7154251913872dbc093533, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CardLogicComponent: {fileID: 0}
+  CardLogicComponent: {fileID: 404369807}
   DeckNum: 0
   CardsArray: []
   Rect: {fileID: 1448187927}
@@ -924,6 +1002,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 244256011}
   m_CullTransparentMesh: 1
+--- !u!114 &244256016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244256011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 925475ca3ed7ec64584514af62810258, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Key: 2
+  RectRoot: {fileID: 244256012}
+  Fitter: {fileID: 0}
 --- !u!1 &245694061
 GameObject:
   m_ObjectHideFlags: 0
@@ -1226,6 +1319,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 371104054}
+  - component: {fileID: 371104055}
   m_Layer: 0
   m_Name: HowToPlayManager
   m_TagString: Untagged
@@ -1248,6 +1342,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 215433478}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &371104055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 371104053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f12b52f773aff438ea5ba17e8a63c746, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _container: {fileID: 11400000, guid: 1aa4177798d4d414e83225574ced2a96, type: 2}
+  _item: {fileID: 0}
 --- !u!1 &404369805
 GameObject:
   m_ObjectHideFlags: 0
@@ -1319,13 +1427,12 @@ MonoBehaviour:
   WasteDeck: {fileID: 154159198}
   _packDeck: {fileID: 244256013}
   GameManagerComponent: {fileID: 411655885}
-  HintManagerComponent: {fileID: 0}
-  AutoCompleteComponent: {fileID: 0}
-  UndoPerformerComponent: {fileID: 0}
-  StatisticsComponent: {fileID: 0}
-  CardShirtComponent: {fileID: 0}
-  OrientationComponent: {fileID: 0}
-  DeckSizeComponent: {fileID: 0}
+  HintManagerComponent: {fileID: 418428742}
+  AutoCompleteComponent: {fileID: 1543854655}
+  UndoPerformerComponent: {fileID: 1008506454}
+  StatisticsComponent: {fileID: 997970625}
+  CardShirtComponent: {fileID: 651396522}
+  DeckSizeComponent: {fileID: 245694063}
   DeckSpacesContainer: {fileID: 0}
   ParticleStars: {fileID: 0}
   WordDataManager: {fileID: 859766521}
@@ -1337,7 +1444,7 @@ MonoBehaviour:
   CategorySlots: []
   DeckPrefab: {fileID: 8863488988429366084, guid: e2a61d08593fd472893bcf657d1c2516,
     type: 3}
-  WordCardPrefab: {fileID: 4905342515255177201, guid: 9ed0da5eda66245a5a3feaab8fe1b617,
+  WordCardPrefab: {fileID: 6718384541448533667, guid: 9ed0da5eda66245a5a3feaab8fe1b617,
     type: 3}
 --- !u!1 &411655881
 GameObject:
@@ -1400,11 +1507,10 @@ MonoBehaviour:
   AdsBtn: {fileID: 0}
   _cardLogic: {fileID: 404369807}
   _adsManagerComponent: {fileID: 2056229144}
-  _undoPerformComponent: {fileID: 0}
+  _undoPerformComponent: {fileID: 1008506454}
   _autoCompleteComponent: {fileID: 1543854655}
   _statisticsComponent: {fileID: 997970625}
-  _howToPlayComponent: {fileID: 0}
-  _orientationManager: {fileID: 948997783}
+  _howToPlayComponent: {fileID: 371104055}
   _layerMediator: {fileID: 411655884}
   UseLoadLastGameOption: 0
   _coinManager: {fileID: 1440228321}
@@ -1455,7 +1561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cardLogicComponent: {fileID: 404369807}
-  _autoCompleteComponent: {fileID: 0}
+  _autoCompleteComponent: {fileID: 1543854655}
   _adsManagerManager: {fileID: 2056229144}
   _hintButton: {fileID: 2029175476}
   IsAvailableForMoveCardArray: []
@@ -1729,7 +1835,7 @@ MonoBehaviour:
   CardBacksContainer: {fileID: 0}
   CardFrontsContainer: {fileID: 0}
   GameBG: {fileID: 195708251}
-  CLComponent: {fileID: 0}
+  CLComponent: {fileID: 404369807}
 --- !u!1 &661518150
 GameObject:
   m_ObjectHideFlags: 0
@@ -1821,7 +1927,6 @@ MonoBehaviour:
   _settingsPanelAnimator: {fileID: 0}
   _bottomPanel: {fileID: 5795981122905171896}
   _bottomBarGroup: {fileID: 0}
-  _orientationManager: {fileID: 948997783}
   _deckSizeManager: {fileID: 245694063}
   _adsManager: {fileID: 2056229144}
   _landscapeBottomBarAdditionalOffsetMultiplier: 1.3
@@ -2365,96 +2470,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &948997780
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 948997781}
-  - component: {fileID: 948997783}
-  - component: {fileID: 948997782}
-  m_Layer: 0
-  m_Name: OrientationManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &948997781
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948997780}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 215433478}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &948997782
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948997780}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a6b3a28934f97c48af0d54ab5be3f3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Screen: 0
-  Hand: 0
-  Logic: {fileID: 948997783}
-  TryUpdateExistingOrientation: 1
---- !u!114 &948997783
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948997780}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7933bdfa2daf45418cedf2b0d278c771, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _deckSizeManager: {fileID: 245694063}
-  _orientationContainer: {fileID: 11400000, guid: 8a7885ee1742950458a71cc1713dab86,
-    type: 2}
-  _hintManager: {fileID: 0}
-  _cardLogic: {fileID: 0}
-  _adsManager: {fileID: 2056229144}
-  _bottomMenuManager: {fileID: 667486514}
-  _deckElements:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  _portraitBottomBarItemWidth: 80
-  _landscapeBottomBarItemWidth: 40
-  _portraitLayerScale: 1
-  _landscapeLayerScale: 0.4
-  _changeOrientationTime: 0.4
-  _orientationType: 0
-  _standaloneDefaultWidth: 768
-  _standaloneDefaultHeight: 1024
 --- !u!1 &997970623
 GameObject:
   m_ObjectHideFlags: 0
@@ -2561,7 +2576,7 @@ MonoBehaviour:
   - {fileID: 637999634256350411, guid: 2dbe3a8900eea364fa1e39abd0305bf8, type: 3}
   - {fileID: 3412557888794149347, guid: 113281478ac2fbe4280a41a87a6b083d, type: 3}
   - {fileID: 4351782403739661398, guid: 3bd9731cb3ebd104d8bbc7241d86c38f, type: 3}
-  - {fileID: 2141613077864389661, guid: c91c1d1c14ff56d41a4b4f203f2d167b, type: 3}
+  - {fileID: 6612740305423116965, guid: c0b6eb9b0c093974da5860b90359855f, type: 3}
 --- !u!114 &1001750421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2673,7 +2688,6 @@ MonoBehaviour:
   _gameMgrComponent: {fileID: 411655885}
   _hintComponent: {fileID: 418428742}
   _undoButton: {fileID: 1217489634}
-  _undoButtonAnim: {fileID: 0}
   _undoAvailableCountsText: {fileID: 121035579}
   IsCountable: 0
   DefaultUndoCounts: 0
@@ -4699,7 +4713,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _gameManagerComponent: {fileID: 0}
   _undoPerformerComponent: {fileID: 0}
-  _orientationManagerComponent: {fileID: 948997783}
   _androidIds:
     InterId: 
     RewardId: 
@@ -4747,10 +4760,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 172890814}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -38.5472}
-  m_SizeDelta: {x: 720, y: 216.9055}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1528145263201830852
 CanvasRenderer:

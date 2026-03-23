@@ -199,17 +199,45 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         
         /// <summary>
         /// 更新列区卡牌位置（垂直堆叠）
+        /// 按照产品文档规则:
+        /// - 列区卡牌从上到下排列,y轴位置最下方的卡牌为翻开状态
+        /// - 其余卡牌均为卡背状态
         /// </summary>
         private void UpdateColumnCardsPosition()
         {
             float verticalSpace = CardLogicComponent?.GetSpaceFromDictionary(DeckSpacesTypes.DECK_SPACE_VERTICAL_BOTTOM_OPENED) ?? 30f;
-            Vector3 basePosition = transform.position;
+            Vector3 deckPosition = transform.position;
             
             for (int i = 0; i < CardsCount; i++)
             {
-                Vector3 newPosition = new Vector3(basePosition.x, basePosition.y - i * verticalSpace, basePosition.z);
+                Card prevCard = i > 0 ? CardsArray[i - 1] : null;
+                
+                // 计算位置:基于前一张卡的位置或Deck位置
+                Vector3 basePosition = (prevCard != null) ? 
+                    prevCard.gameObject.transform.position : deckPosition;
+                
+                Vector3 newPosition;
+                if (prevCard != null)
+                {
+                    // 有前一张卡,则在其下方
+                    newPosition = basePosition - new Vector3(0, verticalSpace, 0);
+                }
+                else
+                {
+                    // 第一张卡,放在Deck位置
+                    newPosition = deckPosition;
+                }
+                
                 CardsArray[i].SetPosition(newPosition);
                 CardsArray[i].transform.SetSiblingIndex(i);
+                
+                // 按照产品文档规则:最后一张牌(最下方)翻开,其余卡背
+                WordSolitaireCard wordCard = CardsArray[i] as WordSolitaireCard;
+                if (wordCard != null)
+                {
+                    bool isLastCard = (i == CardsCount - 1);
+                    wordCard.SetCardFace(isLastCard);
+                }
             }
         }
         
@@ -302,18 +330,36 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             // 获取牌库堆叠间距（使用垂直封闭间距）
             float packSpace = CardLogicComponent?.GetSpaceFromDictionary(DeckSpacesTypes.DECK_SPACE_VERTICAL_BOTTOM_CLOSED) ?? 2f;
-            Vector3 basePosition = transform.position;
-
-            for (int i = 0; i < CardsCount; i++)
+            
+            // 将卡牌设置为 CardBackStack 的子节点
+            Transform cardBackStack = transform.Find("CardBackStack");
+            if (cardBackStack != null)
             {
                 // 错位堆叠：每张牌向下移动一点，实现视觉堆叠效果
-                Vector3 newPosition = new Vector3(
-                    basePosition.x,
-                    basePosition.y - i * packSpace,
-                    basePosition.z
-                );
-                CardsArray[i].SetPosition(newPosition);
-                CardsArray[i].transform.SetSiblingIndex(i);
+                for (int i = 0; i < CardsCount; i++)
+                {
+                    // 设置卡牌的父节点为 CardBackStack
+                    CardsArray[i].transform.SetParent(cardBackStack);
+                    
+                    // 本地坐标堆叠
+                    CardsArray[i].transform.localPosition = new Vector3(0, -i * packSpace, 0);
+                    CardsArray[i].transform.SetSiblingIndex(i);
+                }
+            }
+            else
+            {
+                // 如果 CardBackStack 不存在，使用旧方式（不应发生）
+                Vector3 basePosition = transform.position;
+                for (int i = 0; i < CardsCount; i++)
+                {
+                    Vector3 newPosition = new Vector3(
+                        basePosition.x,
+                        basePosition.y - i * packSpace,
+                        basePosition.z
+                    );
+                    CardsArray[i].SetPosition(newPosition);
+                    CardsArray[i].transform.SetSiblingIndex(i);
+                }
             }
 
             // 更新"恢复库存"文本显示

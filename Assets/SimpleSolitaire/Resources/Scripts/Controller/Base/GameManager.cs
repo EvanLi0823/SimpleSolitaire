@@ -30,8 +30,8 @@ namespace SimpleSolitaire.Controller
         protected StatisticsController _statisticsComponent;
         [SerializeField]
         protected HowToPlayManager _howToPlayComponent;
-        [SerializeField]
-        protected OrientationManager _orientationManager;
+        // [SerializeField]
+        // protected OrientationManager _orientationManager;
 
         [Header("UI 弹窗管理器")]
         [SerializeField]
@@ -49,8 +49,10 @@ namespace SimpleSolitaire.Controller
         public bool SoundEnabled        => _soundEnable;
         public bool AutoCompleteEnabled => _autoCompleteEnable;
         public bool HighlightDraggable  => _cardLogic.HighlightDraggable;
-        public bool IsRightHand         => _orientationManager.HandOrientation != HandOrientation.LEFT;
-        public OrientationType OrientationType => _orientationManager.OrientationType;
+        // public bool IsRightHand         => _orientationManager.HandOrientation != HandOrientation.LEFT;
+        public bool IsRightHand         => true; // 临时：默认为右手模式
+        // public OrientationType OrientationType => _orientationManager.OrientationType;
+        public OrientationType OrientationType => OrientationType.Portrait; // 临时：默认为竖屏模式
 
         private readonly string _appearTrigger    = "Appear";
         private readonly string _disappearTrigger = "Disappear";
@@ -149,6 +151,25 @@ namespace SimpleSolitaire.Controller
         private void InitGameState()
         {
             InitSettingBtns();
+
+            // 检查必要组件
+            if (_cardLogic == null)
+            {
+                Debug.LogError("[GameManager] _cardLogic 未配置，无法初始化游戏状态");
+                return;
+            }
+            
+            if (_howToPlayComponent == null)
+            {
+                Debug.LogError("[GameManager] _howToPlayComponent 未配置，无法初始化游戏状态");
+                return;
+            }
+            
+            if (_undoPerformComponent == null)
+            {
+                Debug.LogError("[GameManager] _undoPerformComponent 未配置，无法初始化游戏状态");
+                return;
+            }
 
             if (UseLoadLastGameOption && _howToPlayComponent.IsHasKey() && _undoPerformComponent.IsHasGame())
             {
@@ -575,12 +596,13 @@ namespace SimpleSolitaire.Controller
 
         public void OnClickOrientationSwitch()
         {
-            _orientationManager.SetHandOrientation(
-                _orientationManager.HandOrientation == HandOrientation.RIGHT
-                    ? HandOrientation.LEFT
-                    : HandOrientation.RIGHT);
-            _orientationManager.SetOrientation();
-            GameEventBus.PublishSettingsChanged();
+            // _orientationManager.SetHandOrientation(
+            //     _orientationManager.HandOrientation == HandOrientation.RIGHT
+            //         ? HandOrientation.LEFT
+            //         : HandOrientation.RIGHT);
+            // _orientationManager.SetOrientation();
+            // GameEventBus.PublishSettingsChanged();
+            Debug.Log("[GameManager] OnClickOrientationSwitch 暂时禁用（OrientationManager未配置）");
         }
 
         public void OnClickAutoCompleteEnablingSwitch()
@@ -600,9 +622,10 @@ namespace SimpleSolitaire.Controller
 
         public void OnClickOrientationStateSwitch()
         {
-            var nextOrientationType = _orientationManager.OrientationType.Next();
-            _orientationManager.SwitchOrientationType(nextOrientationType);
-            GameEventBus.PublishSettingsChanged();
+            // var nextOrientationType = _orientationManager.OrientationType.Next();
+            // _orientationManager.SwitchOrientationType(nextOrientationType);
+            // GameEventBus.PublishSettingsChanged();
+            Debug.Log("[GameManager] OnClickOrientationStateSwitch 暂时禁用（OrientationManager未配置）");
         }
 
         // ISettingsProvider 接口显式实现（委托给已有 public 方法）

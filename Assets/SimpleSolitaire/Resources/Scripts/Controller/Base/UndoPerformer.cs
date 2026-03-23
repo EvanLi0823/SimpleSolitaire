@@ -16,7 +16,6 @@ namespace SimpleSolitaire.Controller
         [SerializeField] protected GameManager _gameMgrComponent;
         [SerializeField] protected HintManager _hintComponent;
         [SerializeField] protected Button _undoButton;
-        [SerializeField] protected Animator _undoButtonAnim;
         [SerializeField] protected Text _undoAvailableCountsText;
 
         [Header("Options:")] [Tooltip("If TRUE UndoLogic will be available only AvailableUndoCounts times. After that need to watch ads for getting new undo uses.")]
@@ -29,7 +28,6 @@ namespace SimpleSolitaire.Controller
         protected abstract string LastGameKey { get; }
 
         protected int AvailableUndoCounts = 0;
-        private readonly string _undoBtnAnimationKey = "IsAnimate";
 
         protected bool IsCountableLogic
         {
@@ -146,8 +144,6 @@ namespace SimpleSolitaire.Controller
         {
             if (IsCountableLogic)
             {
-                _undoButtonAnim.SetBool(_undoBtnAnimationKey, false);
-
                 AvailableUndoCounts = DefaultUndoCounts;
                 _undoAvailableCountsText.text = AvailableUndoCounts.ToString();
                 _undoAvailableCountsText.enabled = true;
@@ -169,11 +165,6 @@ namespace SimpleSolitaire.Controller
         {
             bool isHasUndoState = IsHasUndoState();
 
-            if (IsCountableLogic && AvailableUndoCounts == 0 && StatesData.States.Count > 0)
-            {
-                _undoButtonAnim.SetBool(_undoBtnAnimationKey, true);
-            }
-
             _undoButton.interactable = (IsCountableLogic) ? StatesData.States.Count != 0 : isHasUndoState;
 
             _undoAvailableCountsText.text = AvailableUndoCounts.ToString();
@@ -194,7 +185,6 @@ namespace SimpleSolitaire.Controller
         /// </summary>
         public void ResetUndoStates()
         {
-            _undoButtonAnim.SetBool(_undoBtnAnimationKey, false);
             AvailableUndoCounts = DefaultUndoCounts;
             StatesData.States.Clear();
             ActivateUndoButton();

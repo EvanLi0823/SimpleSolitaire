@@ -42,6 +42,8 @@ namespace SimpleSolitaire.Controller
             card.Deck = this;
             card.IsDraggable = isDraggable;
             card.CardStatus = cardStatus;
+            // 将卡牌设置为Deck的子节点,确保层级结构正确
+            card.transform.SetParent(transform, false);
             CardsArray.Add(card);
         }
 
@@ -56,6 +58,8 @@ namespace SimpleSolitaire.Controller
                 cardArray[i].Deck = this;
                 cardArray[i].IsDraggable = isDraggable;
                 cardArray[i].CardStatus = cardStatus;
+                // 将卡牌设置为Deck的子节点,确保层级结构正确
+                cardArray[i].transform.SetParent(transform, false);
                 CardsArray.Add(cardArray[i]);
             }
         }
@@ -67,6 +71,8 @@ namespace SimpleSolitaire.Controller
                 cardArray[i].Deck = this;
                 cardArray[i].IsDraggable = isDraggable;
                 cardArray[i].CardStatus = cardStatus;
+                // 将卡牌设置为Deck的子节点,确保层级结构正确
+                cardArray[i].transform.SetParent(transform, false);
                 CardsArray.Add(cardArray[i]);
             }
         }

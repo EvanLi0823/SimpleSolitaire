@@ -51,6 +51,13 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         {
             if (_isLoaded) return;
 
+            // 确保字典已初始化（防止Awake未执行或执行顺序问题）
+            if (_categoriesCache == null)
+            {
+                Debug.LogWarning("[WordDataManager] _categoriesCache为null，重新初始化");
+                _categoriesCache = new Dictionary<int, WordCategoryData>();
+            }
+
             var categories = Resources.LoadAll<WordCategoryData>(_categoriesPath);
             
             foreach (var category in categories)

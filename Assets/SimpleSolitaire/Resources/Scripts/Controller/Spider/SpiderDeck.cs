@@ -81,32 +81,41 @@ namespace SimpleSolitaire.Controller
                 card.transform.SetAsLastSibling();
                 if (Type == DeckType.DECK_TYPE_PACK)
                 {
-                    var orientationMgr = CardLogicComponent.OrientationComponent;
-                    var orientation = orientationMgr.OrientationContainer.CurrentOrientation;
-                    var screen = orientation.ScrOrientation;
+                    // 已注释，暂时不需要考虑横屏
+                    // var orientationMgr = CardLogicComponent.OrientationComponent;
+                    // var orientation = orientationMgr.OrientationContainer.CurrentOrientation;
+                    // var screen = orientation.ScrOrientation;
 
-                    var hand = orientation.Hand;
+                    // var hand = orientation.Hand;
 
-                    if (screen == OrientationScreen.Portrait)
-                    {
-                        var deckSpaceType = hand == HandOrientation.RIGHT ? DeckSpacesTypes.DECK_PACK_HORIZONTAL_RIGHT : DeckSpacesTypes.DECK_PACK_HORIZONTAL_LEFT;
-                        var packSpace = CardLogicComponent.GetSpaceFromDictionary(deckSpaceType);
-                        var dealNum = dealAmount + (i / 10);
+                    // if (screen == OrientationScreen.Portrait)
+                    // {
+                    //     var deckSpaceType = hand == HandOrientation.RIGHT ? DeckSpacesTypes.DECK_PACK_HORIZONTAL_RIGHT : DeckSpacesTypes.DECK_PACK_HORIZONTAL_LEFT;
+                    //     var packSpace = CardLogicComponent.GetSpaceFromDictionary(deckSpaceType);
+                    //     var dealNum = dealAmount + (i / 10);
 
-                        card.gameObject.transform.position = gameObject.transform.position -
-                                                             new Vector3(packSpace * dealNum, 0, 0);
-                        card.RestoreBackView();
-                    }
-                    else
-                    {
-                        var packSpace =
-                            CardLogicComponent.GetSpaceFromDictionary(DeckSpacesTypes.DECK_PACK_VERTICAL);
-                        var dealNum = dealAmount + (i / 10);
+                    //     card.gameObject.transform.position = gameObject.transform.position -
+                    //                                                  new Vector3(packSpace * dealNum, 0, 0);
+                    //     card.RestoreBackView();
+                    // }
+                    // else
+                    // {
+                    //     var packSpace =
+                    //         CardLogicComponent.GetSpaceFromDictionary(DeckSpacesTypes.DECK_PACK_VERTICAL);
+                    //     var dealNum = dealAmount + (i / 10);
 
-                        card.gameObject.transform.position = gameObject.transform.position -
-                                                             new Vector3(0, packSpace * dealNum, 0);
-                        card.RestoreBackView();
-                    }
+                    //     card.gameObject.transform.position = gameObject.transform.position -
+                    //                                                  new Vector3(0, packSpace * dealNum, 0);
+                    //     card.RestoreBackView();
+                    // }
+                    // 临时：使用竖屏逻辑
+                    var deckSpaceType = DeckSpacesTypes.DECK_PACK_HORIZONTAL_RIGHT;
+                    var packSpace = CardLogicComponent.GetSpaceFromDictionary(deckSpaceType);
+                    var dealNum = dealAmount + (i / 10);
+
+                    card.gameObject.transform.position = gameObject.transform.position -
+                                                         new Vector3(packSpace * dealNum, 0, 0);
+                    card.RestoreBackView();
                 }
                 else
                 {

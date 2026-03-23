@@ -73,16 +73,19 @@ namespace SimpleSolitaire.Controller
                 }
                 else if (Type == DeckType.DECK_TYPE_TRIPEAKS)
                 {
-                    var orientation = CardLogicComponent.OrientationComponent.OrientationContainer.CurrentOrientation;
-                    var screen = orientation.ScrOrientation;
-                    if (screen == OrientationScreen.Portrait)
-                    {
-                        card.CardRect.anchoredPosition = card.Info.AnchoredPos.VectorPos;
-                    }
-                    else
-                    {
-                        card.CardRect.anchoredPosition = card.Info.AnchoredPos.VectorPos * CardLogicComponent.DeckSizeComponent.LandscapeOrientationScaleDifference;
-                    }
+                    // 已注释，暂时不需要考虑横屏
+                    // var orientation = CardLogicComponent.OrientationComponent.OrientationContainer.CurrentOrientation;
+                    // var screen = orientation.ScrOrientation;
+                    // if (screen == OrientationScreen.Portrait)
+                    // {
+                    //     card.CardRect.anchoredPosition = card.Info.AnchoredPos.VectorPos;
+                    // }
+                    // else
+                    // {
+                    //     card.CardRect.anchoredPosition = card.Info.AnchoredPos.VectorPos * CardLogicComponent.DeckSizeComponent.LandscapeOrientationScaleDifference;
+                    // }
+                    // 临时：使用竖屏逻辑
+                    card.CardRect.anchoredPosition = card.Info.AnchoredPos.VectorPos;
                 }
             }
 

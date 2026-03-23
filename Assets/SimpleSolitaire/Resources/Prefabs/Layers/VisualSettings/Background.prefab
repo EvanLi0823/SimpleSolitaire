@@ -145,7 +145,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 828a79f34903db84e86535d1ecae0728, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cd5db63bb31d1334aab4da515c897e85, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -256,4 +256,3 @@ MonoBehaviour:
   CheckMark: {fileID: 3350585141346576520}
   Anim: {fileID: 2991620770491619213}
   Btn: {fileID: 3508478149960965208}
-  ElementName: 

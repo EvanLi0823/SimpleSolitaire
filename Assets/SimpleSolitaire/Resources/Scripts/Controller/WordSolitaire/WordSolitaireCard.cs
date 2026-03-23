@@ -77,8 +77,8 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                     // 查找分类计数文本（在FrontCategories下）
                     _categoryCountText = this.Get<Text>("Front/FrontCategories/CategoriesCount");
                     
-                    // 查找分类名称文本
-                    _categoryNameText = this.Get<Text>("Front/FrontCategories/CategoryName");
+                    // 注意: CategoryName文本在预制体中不存在,分类卡不需要单独的CategoryName节点
+                    // 分类名称显示在其他位置（如分类槽）
                     
                     // wordImage 默认指向 FrontNormal，实际使用时根据卡牌类型动态设置
                     if (_frontNormalImage != null)
@@ -119,10 +119,17 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private void UpdateCardVisual()
         {
+            // 先隐藏所有Front子节点的背景
+            if (_frontNormalImage != null) _frontNormalImage.gameObject.SetActive(false);
+            if (_frontCategoriesImage != null) _frontCategoriesImage.gameObject.SetActive(false);
+            if (_frontJokerImage != null) _frontJokerImage.gameObject.SetActive(false);
+            
             // 重置所有显示元素
             if (WordText != null) WordText.gameObject.SetActive(false);
             if (WordImage != null) WordImage.gameObject.SetActive(false);
             if (JokerIcon != null) JokerIcon.SetActive(false);
+            if (_categoryIcon != null) _categoryIcon.gameObject.SetActive(false);
+            if (_categoryCountText != null) _categoryCountText.gameObject.SetActive(false);
             
             switch (WordCardType)
             {
@@ -146,6 +153,13 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private void ShowTextCard()
         {
+            // 激活普通卡背景（白色）
+            if (_frontNormalImage != null)
+            {
+                _frontNormalImage.gameObject.SetActive(true);
+            }
+            
+            // 显示文字
             if (WordText != null)
             {
                 WordText.text = WordId; // 实际应使用本地化文本
@@ -158,6 +172,13 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private void ShowImageCard()
         {
+            // 激活普通卡背景（白色）
+            if (_frontNormalImage != null)
+            {
+                _frontNormalImage.gameObject.SetActive(true);
+            }
+            
+            // 显示图片
             if (WordImage != null && WordImageSprite != null)
             {
                 WordImage.sprite = WordImageSprite;
@@ -170,6 +191,13 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private void ShowJokerCard()
         {
+            // 激活万能卡背景（绿色）
+            if (_frontJokerImage != null)
+            {
+                _frontJokerImage.gameObject.SetActive(true);
+            }
+            
+            // 显示万能卡图标
             if (JokerIcon != null)
             {
                 JokerIcon.SetActive(true);
@@ -181,9 +209,16 @@ namespace SimpleSolitaire.Controller.WordSolitaire
         /// </summary>
         private void ShowCategoryCard()
         {
-            // 显示分类图标（左上角标识）
-            if (_categoryIcon != null)
+            // 激活分类卡背景（黄色）
+            if (_frontCategoriesImage != null)
             {
+                _frontCategoriesImage.gameObject.SetActive(true);
+            }
+            
+            // 显示分类图标（左上角标识）
+            if (_categoryIcon != null && WordImageSprite != null)
+            {
+                _categoryIcon.sprite = WordImageSprite;
                 _categoryIcon.gameObject.SetActive(true);
             }
             
@@ -194,20 +229,6 @@ namespace SimpleSolitaire.Controller.WordSolitaire
                 // 格式: "0/N" - 当前收集数量/目标数量
                 // 这里使用默认目标值，实际由CategorySlot更新
                 _categoryCountText.text = $"0/5"; 
-            }
-            
-            // 显示分类名称（中间文本）
-            if (_categoryNameText != null)
-            {
-                _categoryNameText.gameObject.SetActive(true);
-                // 显示类别ID对应的名称（实际应从Categories数据获取）
-                _categoryNameText.text = GetCategoryName(CategoryId);
-            }
-            
-            // 显示分类卡正面图片
-            if (_frontCategoriesImage != null)
-            {
-                _frontCategoriesImage.gameObject.SetActive(true);
             }
         }
         
@@ -260,18 +281,6 @@ namespace SimpleSolitaire.Controller.WordSolitaire
             if (_categoryCountText != null)
             {
                 _categoryCountText.text = $"{current}/{target}";
-            }
-        }
-        
-        /// <summary>
-        /// 更新分类名称显示
-        /// </summary>
-        /// <param name="name">分类名称</param>
-        public void UpdateCategoryName(string name)
-        {
-            if (_categoryNameText != null)
-            {
-                _categoryNameText.text = name;
             }
         }
         

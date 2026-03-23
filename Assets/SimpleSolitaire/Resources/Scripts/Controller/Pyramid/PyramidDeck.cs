@@ -67,16 +67,19 @@ namespace SimpleSolitaire.Controller
                 }
                 else if (Type == DeckType.DECK_TYPE_PYRAMID)
                 {
-                    var orientation = CardLogicComponent.OrientationComponent.OrientationContainer.CurrentOrientation;
-                    var screen = orientation.ScrOrientation;
-                    if (screen == OrientationScreen.Portrait)
-                    {
-                        card.CardRect.anchoredPosition = new Vector2(card.Info.AnchoredPos.VectorPos.x + Rect.anchoredPosition.x, card.Info.AnchoredPos.VectorPos.y + Rect.anchoredPosition.y);
-                    }
-                    else
-                    {
-                        card.CardRect.anchoredPosition = (card.Info.AnchoredPos.VectorPos + transform.localPosition) * CardLogicComponent.DeckSizeComponent.LandscapeOrientationScaleDifference;
-                    }
+                    // 已注释，暂时不需要考虑横屏
+                    // var orientation = CardLogicComponent.OrientationComponent.OrientationContainer.CurrentOrientation;
+                    // var screen = orientation.ScrOrientation;
+                    // if (screen == OrientationScreen.Portrait)
+                    // {
+                    //     card.CardRect.anchoredPosition = new Vector2(card.Info.AnchoredPos.VectorPos.x + Rect.anchoredPosition.x, card.Info.AnchoredPos.VectorPos.y + Rect.anchoredPosition.y);
+                    // }
+                    // else
+                    // {
+                    //     card.CardRect.anchoredPosition = (card.Info.AnchoredPos.VectorPos + transform.localPosition) * CardLogicComponent.DeckSizeComponent.LandscapeOrientationScaleDifference;
+                    // }
+                    // 临时：使用竖屏逻辑
+                    card.CardRect.anchoredPosition = new Vector2(card.Info.AnchoredPos.VectorPos.x + Rect.anchoredPosition.x, card.Info.AnchoredPos.VectorPos.y + Rect.anchoredPosition.y);
 
                     card.CardStatus = 1;
                     card.UpdateCardImg();

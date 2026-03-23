@@ -33,7 +33,7 @@ namespace SimpleSolitaire.Controller
 
         [SerializeField] private GameManager _gameManagerComponent;
         [SerializeField] private UndoPerformer _undoPerformerComponent;
-        [SerializeField] private OrientationManager _orientationManagerComponent;
+        // [SerializeField] private OrientationManager _orientationManagerComponent; - 已注释，暂时不需要考虑横屏
 
         [SerializeField] private AdsIds _androidIds;
         [SerializeField] private AdsIds _iosIds;
